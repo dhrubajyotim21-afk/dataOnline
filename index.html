@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataCash.Online - Earn Money Selling Data</title>
+    
+    <!-- External Libraries & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pinkBrand: {
+                            50: '#FFF5F7',
+                            100: '#FFE4E6',
+                            200: '#FECDD3',
+                            300: '#FDA4AF',
+                            400: '#FB7185',
+                            500: '#F43F5E',
+                            600: '#E11D48',
+                            700: '#BE123C',
+                            800: '#9F1239',
+                            accent: '#EC4899',
+                            glow: 'rgba(236, 72, 153, 0.25)',
+                            cardBg: '#FFFFFF',
+                            pageBg: '#FFF5F7'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FFF5F7;
+            background-image: radial-gradient(#FECDD3 1px, transparent 1px);
+            background-size: 24px 24px;
+            font-family: 'Inter', sans-serif;
+            color: #1F2937;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            overflow: hidden;
+        }
+        .pink-glow { box-shadow: 0 10px 25px -5px rgba(236, 72, 153, 0.25), 0 8px 10px -6px rgba(236, 72, 153, 0.2); }
+        .pink-border-glow { box-shadow: 0 0 15px rgba(236, 72, 153, 0.4); border-color: #EC4899 !important; }
+        .glass-card {
+            background: #FFFFFF;
+            backdrop-filter: blur(12px);
+            border: 1px solid #FECDD3;
+        }
+        @keyframes dataPulse {
+            0% { transform: scale(0.98); opacity: 0.85; }
+            50% { transform: scale(1.02); opacity: 1; filter: drop-shadow(0 0 10px #EC4899); }
+            100% { transform: scale(0.98); opacity: 0.85; }
+        }
+        .animate-data-pulse { animation: dataPulse 1.5s infinite ease-in-out; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-screen p-0 sm:p-4">
+
+    <div id="appContainer" class="w-full max-w-md bg-pinkBrand-pageBg h-screen sm:h-[840px] sm:rounded-3xl shadow-2xl flex flex-col justify-between overflow-hidden relative border border-pinkBrand-200">
+
+        <!-- GLOBAL HEADER -->
+        <header class="bg-white/90 backdrop-blur-md px-5 py-4 border-b border-pinkBrand-100 flex justify-between items-center sticky top-0 z-40 shadow-sm">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-pink-500 to-rose-500 flex items-center justify-center text-white font-black text-xl shadow-md">⚡</div>
+                <div>
+                    <h1 class="text-lg font-black tracking-wide bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">DataCash.Online</h1>
+                    <span id="storageModeBadge" class="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-ping"></span> Live Server Active
+                    </span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold text-pink-700 bg-pink-50 px-2.5 py-1 rounded-full border border-pink-200">v2.1 Sync Edition</span>
+            </div>
+        </header>
+
+        <!-- MAIN DYNAMIC CONTENT CONTAINER -->
+        <main class="flex-1 overflow-y-auto p-4 no-scrollbar relative" id="mainContent">
+
+            <!-- 1. AUTHENTICATION VIEW -->
+            <section id="authView" class="flex flex-col justify-center min-h-[600px] py-4">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-600 text-white font-black text-3xl rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-pink-300">
+                        ⚡
+                    </div>
+                    <h2 class="text-2xl font-black text-gray-800 mb-1">Welcome to DataCash</h2>
+                    <p class="text-xs text-gray-500 font-medium">Sell unused internet data daily for instant cash</p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 border border-pink-200 pink-glow">
+                    <!-- Auth Toggle Tabs -->
+                    <div class="grid grid-cols-2 bg-pink-100/70 p-1 rounded-xl mb-6 border border-pink-200">
+                        <button id="tabLoginBtn" onclick="switchAuthTab('login')" class="py-2.5 text-sm font-bold rounded-lg text-pink-600 bg-white shadow-sm transition">Login</button>
+                        <button id="tabSignupBtn" onclick="switchAuthTab('signup')" class="py-2.5 text-sm font-bold rounded-lg text-gray-500 hover:text-pink-600 transition">Signup</button>
+                    </div>
+
+                    <!-- Alert Banner -->
+                    <div id="authAlert" class="hidden mb-4 p-3 text-xs rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-center font-semibold"></div>
+
+                    <!-- SIGNUP FORM -->
+                    <form id="signupForm" onsubmit="handleSignup(event)" class="space-y-4 hidden">
+                        <div>
+                            <label class="text-xs text-gray-600 mb-1 block font-semibold">Full Name (Min 3 letters)</label>
+                            <div class="relative">
+                                <i class="fa-solid fa-user absolute left-3.5 top-3.5 text-pink-400 text-sm"></i>
+                                <input type="text" id="regName" placeholder="Enter full name" minlength="3" required
+                                    class="w-full bg-pink-50/50 border border-pink-200 rounded-xl py-2.5 pl-10 pr-3 text-sm text-gray-800 focus:outline-none focus:border-pink-500 focus:bg-white transition">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-600 mb-1 block font-semibold">Phone Number (Exactly 10 Digits)</label>
+                            <div class="relative">
+                                <i class="fa-solid fa-phone absolute left-3.5 top-3.5 text-pink-400 text-sm"></i>
+                                <input type="tel" id="regPhone" placeholder="Enter 10 digit number" maxlength="10" pattern="[0-9]{10}" required
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);"
+                                    class="w-full bg-pink-50/50 border border-pink-200 rounded-xl py-2.5 pl-10 pr-3 text-sm text-gray-800 focus:outline-none focus:border-pink-500 focus:bg-white transition">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-600 mb-1 block font-semibold">Create Password (Min 6 chars)</label>
+                            <div class="relative">
+                                <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-pink-400 text-sm"></i>
+                                <input type="password" id="regPass" placeholder="Create new password" minlength="6" required
+                                    class="w-full bg-pink-50/50 border border-pink-200 rounded-xl py-2.5 pl-10 pr-3 text-sm text-gray-800 focus:outline-none focus:border-pink-500 focus:bg-white transition">
+                            </div>
+                        </div>
+                        <button type="submit" id="btnSignupSubmit" class="w-full bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 hover:from-pink-600 hover:to-rose-700 text-white font-extrabold py-3 rounded-xl shadow-lg shadow-pink-200 transition duration-200 mt-2">
+                            Done & Sign Up <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                    </form>
+
+                    <!-- LOGIN FORM -->
+                    <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                        <div>
+                            <label class="text-xs text-gray-600 mb-1 block font-semibold">Phone Number (10 Digits)</label>
+                            <div class="relative">
+                                <i class="fa-solid fa-phone absolute left-3.5 top-3.5 text-pink-400 text-sm"></i>
+                                <input type="tel" id="loginPhone" placeholder="10 digit phone number" maxlength="10" pattern="[0-9]{10}" required
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);"
+                                    class="w-full bg-pink-50/50 border border-pink-200 rounded-xl py-2.5 pl-10 pr-3 text-sm text-gray-800 focus:outline-none focus:border-pink-500 focus:bg-white transition">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-600 mb-1 block font-semibold">Password</label>
+                            <div class="relative">
+                                <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-pink-400 text-sm"></i>
+                                <input type="password" id="loginPass" placeholder="Enter password" minlength="6" required
+                                    class="w-full bg-pink-50/50 border border-pink-200 rounded-xl py-2.5 pl-10 pr-3 text-sm text-gray-800 focus:outline-none focus:border-pink-500 focus:bg-white transition">
+                            </div>
+                        </div>
+                        <button type="submit" id="btnLoginSubmit" class="w-full bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 hover:from-pink-600 hover:to-rose-700 text-white font-extrabold py-3 rounded-xl shadow-lg shadow-pink-200 transition duration-200 mt-2">
+                            Login To Dashboard <i class="fa-solid fa-right-to-bracket ml-1"></i>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- 2. DASHBOARD VIEW -->
+            <section id="dashboardView" class="hidden space-y-4">
+                <!-- Welcome Banner -->
+                <div class="glass-card p-4 rounded-2xl border border-pink-200 flex justify-between items-center shadow-md">
+                    <div>
+                        <p class="text-xs text-pink-600 font-semibold">Welcome Back,</p>
+                        <h2 class="text-xl font-black text-gray-900 capitalize" id="dashUserName">User Name</h2>
+                    </div>
+                    <button onclick="handleLogout()" class="text-xs text-rose-600 hover:text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-xl font-bold transition">
+                        <i class="fa-solid fa-power-off mr-1"></i> Logout
+                    </button>
+                </div>
+
+                <div class="flex justify-between items-center px-1">
+                    <h3 class="text-xs font-extrabold text-pink-800 tracking-wider uppercase">Dashboard Overview</h3>
+                    <span class="text-[10px] text-pink-600 bg-pink-100 px-2.5 py-0.5 rounded-full border border-pink-200 font-bold">Verified Account</span>
+                </div>
+
+                <!-- 5 MAIN STAT CARDS GRID -->
+                <div class="grid grid-cols-2 gap-3">
+                    <!-- Stat 1: Total Income -->
+                    <div class="glass-card p-4 rounded-2xl border border-pink-200 flex flex-col justify-between shadow-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-500 font-semibold">Total Income</span>
+                            <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black">₹</div>
+                        </div>
+                        <div class="mt-3">
+                            <span class="text-2xl font-black text-emerald-600">₹<span id="dashTotalIncome">0</span></span>
+                            <p class="text-[10px] text-gray-400 mt-0.5">Lifetime earnings</p>
+                        </div>
+                    </div>
+
+                    <!-- Stat 2: Total MB Sell -->
+                    <div class="glass-card p-4 rounded-2xl border border-pink-200 flex flex-col justify-between shadow-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-500 font-semibold">Total MB Sell</span>
+                            <div class="w-7 h-7 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center text-xs font-bold">MB</div>
+                        </div>
+                        <div class="mt-3">
+                            <span class="text-2xl font-black text-pink-600"><span id="dashTotalMb">0</span> <span class="text-xs text-gray-500">MB</span></span>
+                            <p class="text-[10px] text-gray-400 mt-0.5">Transferred data</p>
+                        </div>
+                    </div>
+
+                    <!-- Stat 3: Active Package -->
+                    <div class="col-span-2 glass-card p-4 rounded-2xl border border-pink-200 flex justify-between items-center shadow-sm">
+                        <div>
+                            <span class="text-xs text-gray-500 font-semibold block">Active Package</span>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span id="dashPackageBadge" class="px-3 py-1 text-xs font-black rounded-lg bg-gray-100 text-gray-600 border border-gray-200">NORMAL</span>
+                                <span class="text-[11px] text-gray-500" id="pkgSubText">Default Free Rate</span>
+                            </div>
+                        </div>
+                        <button id="buyVipNavBtn" onclick="navigateTo('vip')" class="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-black px-4 py-2.5 rounded-xl text-xs shadow-md shadow-pink-200 transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-crown text-amber-300"></i> Buy VIP
+                        </button>
+                    </div>
+
+                    <!-- Stat 4: Withdraw Balance -->
+                    <div class="col-span-2 glass-card p-4 rounded-2xl border border-pink-200 flex justify-between items-center shadow-sm">
+                        <div>
+                            <span class="text-xs text-gray-500 font-semibold block">Withdraw Balance</span>
+                            <span class="text-2xl font-black text-gray-900 mt-1 block">₹<span id="dashWithdrawBal">0</span></span>
+                        </div>
+                        <button onclick="navigateTo('withdraw')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-black px-4 py-2.5 rounded-xl text-xs shadow-md shadow-emerald-200 transition">
+                            Withdraw Now <i class="fa-solid fa-wallet ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SELL DATA ACTION BUTTON -->
+                <button onclick="navigateTo('sell')" class="w-full bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 hover:from-pink-600 hover:to-rose-700 text-white font-black py-3.5 rounded-xl shadow-lg shadow-pink-300 text-sm tracking-wide flex items-center justify-center gap-2 border border-pink-300 transition transform active:scale-95">
+                    SELL YOUR DATA NOW
+                </button>
+            </section>
+
+            <!-- 3. SELL YOUR DATA VIEW -->
+            <section id="sellView" class="hidden space-y-4">
+                <div class="flex items-center justify-between">
+                    <button onclick="navigateTo('dashboard')" class="text-xs text-gray-600 hover:text-gray-900 bg-white px-3 py-1.5 rounded-xl border border-pink-200 font-semibold shadow-sm">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> Back
+                    </button>
+                    <h2 class="text-base font-black text-pink-600 uppercase tracking-wider">Sell Your Data</h2>
+                    <div class="w-12"></div>
+                </div>
+
+                <!-- Added Heading Text -->
+                <div class="bg-gradient-to-r from-pink-500 to-rose-500 p-3.5 rounded-2xl text-white text-center shadow-md">
+                    <h3 class="text-xs font-black tracking-wide">Sell Your Unused Data And Earn Money Daily.</h3>
+                </div>
+
+                <!-- Rates Display Card -->
+                <div class="glass-card p-4 rounded-2xl border border-pink-200 space-y-2 shadow-sm">
+                    <div class="flex justify-between items-center text-xs border-b border-pink-100 pb-2">
+                        <span class="text-gray-500 font-semibold">Current Rate:</span>
+                        <span class="text-pink-600 font-extrabold">5 Rupees / 20 MB</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-gray-500 font-semibold">VIP Pro Rate:</span>
+                        <span class="text-emerald-600 font-extrabold">250 Rupees Per 1000 MB / Daily</span>
+                    </div>
+                </div>
+
+                <!-- Selected Data Status -->
+                <div class="bg-white p-3 rounded-2xl border border-pink-200 text-center shadow-sm">
+                    <span class="text-xs text-gray-500 block font-semibold">Selected Data:</span>
+                    <span id="selectedDataLabel" class="text-sm font-black text-pink-600">None Selected</span>
+                </div>
+
+                <!-- Select MB Options -->
+                <div class="space-y-2">
+                    <label class="text-xs text-gray-600 block font-bold">Select MB To Sell:</label>
+                    <div id="mbOptionsGrid" class="grid grid-cols-2 gap-3">
+                        <button id="btnSelect20MB" onclick="selectMBOption(20)" class="glass-card hover:border-pink-500 p-3.5 rounded-2xl border border-pink-200 text-center transition relative shadow-sm">
+                            <span class="text-base font-black text-gray-800 block">20 MB</span>
+                            <span class="text-xs text-emerald-600 font-bold">Earn - ₹5</span>
+                            <span class="block text-[10px] text-gray-400 mt-0.5">Normal User</span>
+                        </button>
+
+                        <button id="btnSelect1000MB" onclick="selectMBOption(1000)" class="glass-card p-3.5 rounded-2xl border border-pink-200 text-center transition relative overflow-hidden shadow-sm">
+                            <div id="vipLockBadge" class="absolute top-2 right-2 text-xs text-amber-500">
+                                <i class="fa-solid fa-lock"></i>
+                            </div>
+                            <span class="text-base font-black text-pink-600 block">1000 MB</span>
+                            <span class="text-xs text-emerald-600 font-bold">Earn - ₹250</span>
+                            <span class="block text-[10px] text-pink-700/80 font-medium mt-0.5" id="vipBtnSubtitle">To Sell Daily 1000 MB - Buy VIP</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Start Selling Button -->
+                <button id="btnStartSelling" onclick="executeDataSelling()" disabled class="w-full bg-gray-200 text-gray-400 font-extrabold py-3 rounded-xl shadow transition cursor-not-allowed">
+                    Start Data Selling
+                </button>
+
+                <!-- LIVE DATA PIPELINE ANIMATION -->
+                <div id="sellingAnimationBox" class="hidden glass-card p-4 rounded-2xl border border-pink-400 pink-glow space-y-3">
+                    <div class="text-center">
+                        <span id="animEstEarning" class="text-xs font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full inline-block">
+                            ESTIMATE EARNING - 5 RUPPES
+                        </span>
+                        
+                        <!-- File Sending Visual animation header -->
+                        <div class="flex items-center justify-center gap-3 my-2 text-xs font-bold text-pink-600">
+                            <span class="bg-pink-100 px-2 py-1 rounded border border-pink-200"><i class="fa-solid fa-mobile-screen"></i> Your Side</span>
+                            <i class="fa-solid fa-angles-right animate-ping text-pink-500"></i>
+                            <span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded border border-emerald-200"><i class="fa-solid fa-server"></i> Receiver Side</span>
+                        </div>
+
+                        <h4 id="animMbSellingText" class="text-xs font-black text-pink-600 mt-1 animate-pulse">
+                            20 MB SELLING NOW
+                        </h4>
+                    </div>
+
+                    <div class="bg-pink-50/60 p-3 rounded-xl border border-pink-200 space-y-2">
+                        <div class="flex justify-between items-center text-xs font-bold">
+                            <span id="animYourMbLabel" class="text-pink-600">YOUR 20MB</span>
+                            <span id="animMbCounterText" class="text-gray-800 text-xs font-mono font-black">0 / 20 MB</span>
+                            <span id="animPercentText" class="text-emerald-600 text-xs font-mono">1%</span>
+                        </div>
+                        
+                        <div class="w-full bg-pink-100 h-3 rounded-full overflow-hidden p-0.5 border border-pink-200">
+                            <div id="animProgressBar" class="bg-gradient-to-r from-pink-500 via-rose-500 to-emerald-500 h-full w-[1%] rounded-full transition-all duration-100"></div>
+                        </div>
+
+                        <div class="flex justify-center items-center gap-1.5 text-pink-600 text-xs pt-1 animate-data-pulse">
+                            <i class="fa-solid fa-wifi"></i>
+                            <span class="text-[10px] text-gray-500 font-semibold">Transferring encrypted data packets to receiver...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIP Promo Banner -->
+                <div id="sellVipPromo" class="bg-gradient-to-r from-pink-500 to-rose-500 p-3.5 rounded-2xl text-white flex justify-between items-center shadow-md">
+                    <div>
+                        <h4 class="text-xs font-extrabold">To Sell Daily 1000 MB</h4>
+                        <p class="text-[10px] text-pink-100">Upgrade to VIP Package instantly</p>
+                    </div>
+                    <button onclick="navigateTo('vip')" class="bg-white text-pink-600 font-black px-3.5 py-1.5 rounded-xl text-xs shadow-sm hover:bg-pink-50 transition">
+                        Buy VIP
+                    </button>
+                </div>
+
+                <!-- Sell History Section -->
+                <div class="space-y-2 pt-2">
+                    <h3 class="text-xs font-bold text-pink-800 uppercase tracking-wider">Recent Data Sell History</h3>
+                    <div id="sellHistoryList" class="space-y-2 text-xs">
+                        <div class="text-gray-400 text-center py-3 glass-card rounded-xl">No recent sales yet</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. BUY VIP VIEW -->
+            <section id="vipView" class="hidden space-y-4">
+                <div class="flex items-center justify-between">
+                    <button onclick="navigateTo('dashboard')" class="text-xs text-gray-600 hover:text-gray-900 bg-white px-3 py-1.5 rounded-xl border border-pink-200 font-semibold shadow-sm">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> Back
+                    </button>
+                    <h2 class="text-base font-black text-pink-600 uppercase tracking-wider">ViP Pro Daily 1000 MB</h2>
+                    <div class="w-12"></div>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl border border-pink-300 text-center space-y-3 pink-glow">
+                    <div class="inline-block bg-pink-100 text-pink-700 px-3.5 py-1 rounded-full text-xs font-black border border-pink-300">
+                        <i class="fa-solid fa-crown mr-1 text-amber-500"></i> PREMIUM PACKAGE
+                    </div>
+                    <h3 class="text-2xl font-black text-gray-900">VIP Pro Daily 1000 MB</h3>
+                    <div class="text-3xl font-black text-pink-600">Price - ₹299</div>
+                    <p class="text-xs text-gray-600 max-w-xs mx-auto leading-relaxed">
+                        Unlock 1000 MB daily data selling limit. Earn ₹250 daily directly to your withdraw balance.
+                    </p>
+                    <button onclick="openVipPaymentModal()" class="w-full bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white font-black py-3 rounded-xl shadow-lg shadow-pink-200 hover:brightness-110 transition">
+                        Buy VIP Now ₹299
+                    </button>
+                </div>
+
+                <!-- Recent Request Status -->
+                <div class="space-y-2 pt-2">
+                    <h3 class="text-xs font-bold text-pink-800 uppercase tracking-wider">Recent Request Status</h3>
+                    <div id="vipRequestStatusList" class="space-y-2">
+                        <div class="glass-card p-3.5 rounded-xl border border-pink-200 flex justify-between items-center text-xs">
+                            <span class="font-bold text-gray-700">ViP RaZa</span>
+                            <span class="text-gray-400">status - None</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. WITHDRAWAL VIEW -->
+            <section id="withdrawView" class="hidden space-y-4">
+                <div class="flex items-center justify-between">
+                    <button onclick="navigateTo('dashboard')" class="text-xs text-gray-600 hover:text-gray-900 bg-white px-3 py-1.5 rounded-xl border border-pink-200 font-semibold shadow-sm">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> Back
+                    </button>
+                    <h2 class="text-base font-black text-emerald-600 uppercase tracking-wider">Withdraw Now</h2>
+                    <div class="w-12"></div>
+                </div>
+
+                <div class="bg-gradient-to-r from-emerald-50 via-white to-pink-50 p-4 rounded-2xl border border-emerald-200 flex justify-between items-center shadow-sm">
+                    <div>
+                        <span class="text-xs text-gray-500 font-semibold">Withdraw Balance</span>
+                        <h3 class="text-2xl font-black text-emerald-600">₹<span id="withdrawCurrentBal">0</span></h3>
+                    </div>
+                    <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full border border-emerald-300">
+                        Min Withdraw: ₹5
+                    </span>
+                </div>
+
+                <form id="withdrawForm" onsubmit="handleWithdrawSubmit(event)" class="glass-card p-4 rounded-2xl border border-pink-200 space-y-3 shadow-sm">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs text-gray-600 font-semibold">Withdraw Amount (Minimum ₹5)</label>
+                            <span id="withdrawFeeNotice" class="text-[11px] font-bold text-pink-600 hidden">Withdraw Fees 90%</span>
+                        </div>
+                        <input type="number" id="withdrawAmt" placeholder="Enter amount (e.g. 5)" min="5" oninput="calculateWithdrawBreakdown()" required
+                            class="w-full bg-pink-50/50 border border-pink-200 rounded-xl py-2.5 px-3 text-sm text-gray-800 focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+                        <div id="withdrawBreakdownText" class="text-xs font-bold text-gray-700 mt-1.5 hidden"></div>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-600 mb-1 block font-semibold">Phone Number (10 Digits)</label>
+                        <input type="tel" id="withdrawUpi" placeholder="Enter 10 digit phone number" maxlength="10" pattern="[0-9]{10}" required
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);"
+                            class="w-full bg-pink-50/50 border border-pink-200 rounded-xl py-2.5 px-3 text-sm text-gray-800 focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 rounded-xl shadow-md shadow-emerald-200 transition">
+                        Done & Submit Request
+                    </button>
+                </form>
+
+                <div class="space-y-2 pt-2">
+                    <h3 class="text-xs font-bold text-pink-800 uppercase tracking-wider">Recent Withdraw Req</h3>
+                    <div id="withdrawHistoryList" class="space-y-2">
+                        <div class="text-gray-400 text-center py-3 glass-card rounded-xl text-xs">No withdraw requests found</div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- GLOBAL FOOTER WITH SECRET ADMIN TRIGGER -->
+        <footer class="bg-white/90 border-t border-pink-100 p-3 text-center text-xs space-y-1">
+            <div class="flex items-center justify-center gap-2">
+                <button onclick="openPrivacyModal()" class="text-pink-600 hover:underline font-bold text-xs">
+                    Privacy & Policy
+                </button>
+                <!-- Secret Admin Trigger via dot -->
+                <span onclick="openAdminModal()" class="cursor-pointer text-gray-300 hover:text-pink-500 select-none text-[10px]">●</span>
+            </div>
+            <p class="text-[11px] text-emerald-600 font-bold flex items-center justify-center gap-1">
+                <i class="fa-solid fa-circle-check"></i> 100% Trusted Government Verified Website.
+            </p>
+        </footer>
+
+        <!-- VIP PAYMENT MODAL -->
+        <div id="vipPaymentModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-sm rounded-3xl border border-pink-200 p-5 space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar relative shadow-2xl">
+                <button onclick="closeVipPaymentModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+                
+                <div class="text-center">
+                    <h3 class="text-lg font-black text-pink-600">ViP RAZA</h3>
+                    <p class="text-xs text-gray-500">Scan QR or pay via UPI App</p>
+                </div>
+
+                <div class="flex flex-col items-center justify-center bg-pink-50 p-4 rounded-2xl border border-pink-200 mx-auto w-48 h-48 shadow-inner">
+                    <img id="upiQrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi%3A%2F%2Fpay%3Fpa%3D8822798662%40fam%26pn%3DDataCash%26am%3D299" alt="UPI QR Code" class="w-full h-full object-contain">
+                </div>
+
+                <div class="text-center space-y-0.5">
+                    <span class="text-xs font-black text-pink-600 tracking-wider uppercase block">Pay By Any UPI App</span>
+                    <span class="text-[11px] text-gray-700 font-mono font-bold">UPI ID: 8822798662@fam</span>
+                </div>
+
+                <div class="space-y-3 pt-2 border-t border-pink-100">
+                    <div>
+                        <label class="text-xs text-gray-600 mb-1 block font-semibold">WhatsApp Number (Exactly 10 digits)</label>
+                        <input type="tel" id="vipWhatsapp" placeholder="10 digit WhatsApp number" maxlength="10"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10); checkVipFormValid();"
+                            class="w-full bg-pink-50/50 border border-pink-200 rounded-xl py-2 px-3 text-xs text-gray-800 focus:outline-none focus:border-pink-500">
+                    </div>
+
+                    <div>
+                        <label class="text-xs text-gray-600 mb-1 block font-semibold">Put Your UTR ID/REF No (12-20 chars)</label>
+                        <input type="text" id="vipUtr" placeholder="Enter 12 to 20 digit UTR" minlength="12" maxlength="20"
+                            oninput="checkVipFormValid();"
+                            class="w-full bg-pink-50/50 border border-pink-200 rounded-xl py-2 px-3 text-xs text-gray-800 focus:outline-none focus:border-pink-500">
+                    </div>
+
+                    <button id="vipDoneBtn" onclick="submitVipPaymentRequest()" disabled class="w-full bg-gray-200 text-gray-400 font-extrabold py-3 rounded-xl transition duration-200 cursor-not-allowed">
+                        Done
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRIVACY POLICY MODAL -->
+        <div id="privacyModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-sm rounded-3xl border border-pink-200 p-5 space-y-4 shadow-2xl">
+                <div class="flex justify-between items-center border-b border-pink-100 pb-2">
+                    <h3 class="text-base font-bold text-pink-600">Privacy Policy</h3>
+                    <button onclick="closePrivacyModal()" class="text-gray-400 hover:text-gray-700">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="text-xs text-gray-600 space-y-2 leading-relaxed">
+                    <p class="font-bold text-gray-800">DataCash.Online respects your privacy.</p>
+                    <p>We collect only the information needed to provide our services, such as your name, phone number, UPI ID, and transaction details.</p>
+                    <p>We keep your information secure and do not sell your personal information to others.</p>
+                    <p class="text-pink-600 font-semibold">We never ask for your OTP, UPI PIN, ATM PIN, or password.</p>
+                    <p>By using DataCash.Online, you agree to this Privacy Policy.</p>
+                </div>
+                <button onclick="closePrivacyModal()" class="w-full bg-pink-500 text-white text-xs font-bold py-2.5 rounded-xl shadow-md">
+                    I Understand
+                </button>
+            </div>
+        </div>
+
+        <!-- INLINE ADMIN MODAL -->
+        <div id="adminModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+            <div class="bg-white w-full max-w-md rounded-3xl border border-pink-200 p-5 space-y-4 my-auto shadow-2xl">
+                <div class="flex justify-between items-center border-b border-pink-100 pb-2">
+                    <h3 class="text-base font-black text-pink-600"><i class="fa-solid fa-user-shield"></i> Admin Panel</h3>
+                    <button onclick="closeAdminModal()" class="text-gray-400 hover:text-gray-700">
+                        <i class="fa-solid fa-xmark text-base"></i>
+                    </button>
+                </div>
+
+                <div id="adminAuthBox" class="space-y-3 py-4">
+                    <p class="text-xs text-gray-500 text-center font-medium">Enter 6-digit Security Password (882279)</p>
+                    <input type="password" id="adminPassInput" placeholder="Enter password" maxlength="6"
+                        class="w-full bg-pink-50/50 border border-pink-200 rounded-xl py-2.5 text-center text-lg font-bold tracking-widest text-gray-800 focus:outline-none focus:border-pink-500">
+                    <button onclick="unlockAdmin()" class="w-full bg-pink-500 text-white font-extrabold py-2.5 rounded-xl text-sm shadow-md">
+                        Unlock Admin Panel
+                    </button>
+                </div>
+
+                <div id="adminContentBox" class="hidden space-y-4">
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="bg-pink-50 p-2.5 rounded-xl border border-pink-200">
+                            <span class="text-[10px] text-gray-500 block font-semibold">Total Users</span>
+                            <span id="adminTotalUsers" class="text-lg font-black text-gray-800">0</span>
+                        </div>
+                        <div class="bg-pink-50 p-2.5 rounded-xl border border-pink-200">
+                            <span class="text-[10px] text-gray-500 block font-semibold">VIP Requests</span>
+                            <span id="adminTotalVipReqs" class="text-lg font-black text-pink-600">0</span>
+                        </div>
+                        <div class="bg-pink-50 p-2.5 rounded-xl border border-pink-200">
+                            <span class="text-[10px] text-gray-500 block font-semibold">Withdraw Req</span>
+                            <span id="adminTotalWithReqs" class="text-lg font-black text-emerald-600">0</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 bg-pink-50 p-1 rounded-xl border border-pink-200 text-xs">
+                        <button id="adminTabVipBtn" onclick="switchAdminTab('vip')" class="py-2 font-bold rounded-lg text-pink-600 bg-white shadow-sm">VIP Requests</button>
+                        <button id="adminTabWithBtn" onclick="switchAdminTab('withdraw')" class="py-2 font-bold rounded-lg text-gray-500">Withdraw Requests</button>
+                    </div>
+
+                    <div id="adminVipSection" class="space-y-2 max-h-60 overflow-y-auto no-scrollbar">
+                        <div class="text-xs text-gray-400 text-center py-4">Loading VIP Requests...</div>
+                    </div>
+
+                    <div id="adminWithdrawSection" class="hidden space-y-2 max-h-60 overflow-y-auto no-scrollbar">
+                        <div class="text-xs text-gray-400 text-center py-4">Loading Withdraw Requests...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // FIREBASE REALTIME DATABASE CONFIGURATION
+        const firebaseConfig = {
+            databaseURL: "https://datacash-95a80-default-rtdb.firebaseio.com/"
+        };
+
+        let useLocalStorageFallback = false;
+        let db = null;
+
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.database();
+        } catch (e) {
+            console.warn("Firebase Init fallback:", e);
+            useLocalStorageFallback = true;
+        }
+
+        function getLocalDB() {
+            const data = localStorage.getItem('datacash_local_db');
+            if (!data) {
+                const initial = { users: {}, vip_requests: {}, withdraw_requests: {}, sell_history: {} };
+                localStorage.setItem('datacash_local_db', JSON.stringify(initial));
+                return initial;
+            }
+            try {
+                return JSON.parse(data);
+            } catch (err) {
+                const initial = { users: {}, vip_requests: {}, withdraw_requests: {}, sell_history: {} };
+                localStorage.setItem('datacash_local_db', JSON.stringify(initial));
+                return initial;
+            }
+        }
+
+        function saveLocalDB(dbObj) {
+            localStorage.setItem('datacash_local_db', JSON.stringify(dbObj));
+        }
+
+        let currentUser = null;
+        let selectedMB = 0;
+        let isSelling = false;
+        let timerInterval = null;
+        let activeListeners = {};
+
+        window.addEventListener('DOMContentLoaded', () => {
+            navigateTo('auth');
+        });
+
+        function showAuthAlert(msg) {
+            const el = document.getElementById('authAlert');
+            if (el) {
+                el.innerText = msg;
+                el.classList.remove('hidden');
+                setTimeout(() => el.classList.add('hidden'), 4000);
+            }
+        }
+
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const tabLoginBtn = document.getElementById('tabLoginBtn');
+            const tabSignupBtn = document.getElementById('tabSignupBtn');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                tabLoginBtn.className = "py-2.5 text-sm font-bold rounded-lg text-pink-600 bg-white shadow-sm transition";
+                tabSignupBtn.className = "py-2.5 text-sm font-bold rounded-lg text-gray-500 hover:text-pink-600 transition";
+            } else {
+                signupForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+                tabSignupBtn.className = "py-2.5 text-sm font-bold rounded-lg text-pink-600 bg-white shadow-sm transition";
+                tabLoginBtn.className = "py-2.5 text-sm font-bold rounded-lg text-gray-500 hover:text-pink-600 transition";
+            }
+        }
+
+        function handleSignup(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const pass = document.getElementById('regPass').value;
+
+            if (name.length < 3) return showAuthAlert("Name must be at least 3 letters long.");
+            if (phone.length !== 10 || isNaN(phone)) return showAuthAlert("Phone number must be exactly 10 digits.");
+            if (pass.length < 6) return showAuthAlert("Password must be at least 6 characters.");
+
+            const btn = document.getElementById('btnSignupSubmit');
+            btn.disabled = true;
+            btn.innerText = "Signing up...";
+
+            const newUser = {
+                name: name,
+                phone: phone,
+                password: pass,
+                total_income: 0,
+                withdraw_balance: 0,
+                total_mb_sell: 0,
+                package: 'normal',
+                has_used_20mb: false,
+                last_1000mb_sell: 0,
+                created_at: Date.now()
+            };
+
+            const executeLocalSignup = () => {
+                const localDB = getLocalDB();
+                if (localDB.users[phone]) {
+                    showAuthAlert("Account with this phone already exists! Please login.");
+                    btn.disabled = false;
+                    btn.innerText = "Done & Sign Up";
+                    switchAuthTab('login');
+                    return;
+                }
+                localDB.users[phone] = newUser;
+                saveLocalDB(localDB);
+                currentUser = newUser;
+                listenToUserData(phone);
+                btn.disabled = false;
+                btn.innerText = "Done & Sign Up";
+                navigateTo('dashboard');
+            };
+
+            if (useLocalStorageFallback || !db) {
+                executeLocalSignup();
+                return;
+            }
+
+            let firebaseResponded = false;
+            const timeout = setTimeout(() => {
+                if (!firebaseResponded) {
+                    useLocalStorageFallback = true;
+                    document.getElementById('storageModeBadge').innerText = "Local Server Active";
+                    executeLocalSignup();
+                }
+            }, 3000);
+
+            db.ref('users/' + phone).once('value')
+                .then((snapshot) => {
+                    firebaseResponded = true;
+                    clearTimeout(timeout);
+                    if (snapshot.exists()) {
+                        showAuthAlert("Account already exists! Please login.");
+                        btn.disabled = false;
+                        btn.innerText = "Done & Sign Up";
+                        switchAuthTab('login');
+                    } else {
+                        db.ref('users/' + phone).set(newUser, (error) => {
+                            btn.disabled = false;
+                            btn.innerText = "Done & Sign Up";
+                            if (error) {
+                                executeLocalSignup();
+                            } else {
+                                currentUser = newUser;
+                                listenToUserData(phone);
+                                navigateTo('dashboard');
+                            }
+                        });
+                    }
+                })
+                .catch(() => {
+                    firebaseResponded = true;
+                    clearTimeout(timeout);
+                    executeLocalSignup();
+                });
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const phone = document.getElementById('loginPhone').value.trim();
+            const pass = document.getElementById('loginPass').value;
+
+            if (phone.length !== 10) return showAuthAlert("Enter valid 10-digit phone number.");
+
+            const btn = document.getElementById('btnLoginSubmit');
+            btn.disabled = true;
+            btn.innerText = "Logging in...";
+
+            const executeLocalLogin = () => {
+                const localDB = getLocalDB();
+                const userData = localDB.users[phone];
+                btn.disabled = false;
+                btn.innerText = "Login To Dashboard";
+
+                if (userData) {
+                    if (userData.password === pass) {
+                        currentUser = userData;
+                        listenToUserData(phone);
+                        navigateTo('dashboard');
+                    } else {
+                        showAuthAlert("Incorrect Password! Please try again.");
+                    }
+                } else {
+                    showAuthAlert("No account found with this phone. Please Signup first.");
+                    switchAuthTab('signup');
+                }
+            };
+
+            if (useLocalStorageFallback || !db) {
+                executeLocalLogin();
+                return;
+            }
+
+            let firebaseResponded = false;
+            const timeout = setTimeout(() => {
+                if (!firebaseResponded) {
+                    useLocalStorageFallback = true;
+                    executeLocalLogin();
+                }
+            }, 3000);
+
+            db.ref('users/' + phone).once('value')
+                .then((snapshot) => {
+                    firebaseResponded = true;
+                    clearTimeout(timeout);
+                    btn.disabled = false;
+                    btn.innerText = "Login To Dashboard";
+
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        if (userData.password === pass) {
+                            currentUser = userData;
+                            listenToUserData(phone);
+                            navigateTo('dashboard');
+                        } else {
+                            showAuthAlert("Incorrect Password!");
+                        }
+                    } else {
+                        showAuthAlert("No account found. Please Signup.");
+                        switchAuthTab('signup');
+                    }
+                })
+                .catch(() => {
+                    firebaseResponded = true;
+                    clearTimeout(timeout);
+                    executeLocalLogin();
+                });
+        }
+
+        function listenToUserData(phone) {
+            if (!useLocalStorageFallback && db) {
+                if (activeListeners.user) db.ref('users/' + phone).off('value', activeListeners.user);
+                if (activeListeners.vip) db.ref('vip_requests').off('value', activeListeners.vip);
+                if (activeListeners.withdraw) db.ref('withdraw_requests').off('value', activeListeners.withdraw);
+                if (activeListeners.sell) db.ref('sell_history/' + phone).off('value', activeListeners.sell);
+
+                activeListeners.user = db.ref('users/' + phone).on('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        currentUser = snapshot.val();
+                        updateDashboardUI();
+                        updateSellPageUI();
+                    }
+                });
+
+                activeListeners.vip = db.ref('vip_requests').on('value', (snapshot) => {
+                    renderVipRequestStatus(snapshot.val());
+                });
+
+                activeListeners.withdraw = db.ref('withdraw_requests').on('value', (snapshot) => {
+                    renderWithdrawHistory(snapshot.val());
+                });
+
+                activeListeners.sell = db.ref('sell_history/' + phone).on('value', (snapshot) => {
+                    renderSellHistory(snapshot.val());
+                });
+            } else {
+                setInterval(() => {
+                    const localDB = getLocalDB();
+                    if (localDB.users[phone]) {
+                        currentUser = localDB.users[phone];
+                        updateDashboardUI();
+                        updateSellPageUI();
+                    }
+                    renderVipRequestStatus(localDB.vip_requests);
+                    renderWithdrawHistory(localDB.withdraw_requests);
+                    renderSellHistory(localDB.sell_history ? localDB.sell_history[phone] : null);
+                }, 1000);
+            }
+        }
+
+        function handleLogout() {
+            if (!useLocalStorageFallback && db && currentUser && currentUser.phone) {
+                db.ref('users/' + currentUser.phone).off();
+            }
+            currentUser = null;
+            navigateTo('auth');
+        }
+
+        function navigateTo(viewName) {
+            const views = ['authView', 'dashboardView', 'sellView', 'vipView', 'withdrawView'];
+            views.forEach(v => {
+                const el = document.getElementById(v);
+                if (el) el.classList.add('hidden');
+            });
+
+            if (viewName === 'auth') {
+                document.getElementById('authView').classList.remove('hidden');
+            } else if (viewName === 'dashboard') {
+                document.getElementById('dashboardView').classList.remove('hidden');
+                updateDashboardUI();
+            } else if (viewName === 'sell') {
+                document.getElementById('sellView').classList.remove('hidden');
+                updateSellPageUI();
+            } else if (viewName === 'vip') {
+                document.getElementById('vipView').classList.remove('hidden');
+            } else if (viewName === 'withdraw') {
+                document.getElementById('withdrawView').classList.remove('hidden');
+                document.getElementById('withdrawCurrentBal').innerText = currentUser ? (currentUser.withdraw_balance || 0) : 0;
+                calculateWithdrawBreakdown();
+            }
+        }
+
+        function updateDashboardUI() {
+            if (!currentUser) return;
+
+            document.getElementById('dashUserName').innerText = currentUser.name || "User";
+            document.getElementById('dashTotalIncome').innerText = currentUser.total_income || 0;
+            document.getElementById('dashTotalMb').innerText = currentUser.total_mb_sell || 0;
+            document.getElementById('dashWithdrawBal').innerText = currentUser.withdraw_balance || 0;
+
+            const badge = document.getElementById('dashPackageBadge');
+            const subtext = document.getElementById('pkgSubText');
+            const buyVipBtn = document.getElementById('buyVipNavBtn');
+
+            if (currentUser.package === 'vip') {
+                badge.innerText = "VIP";
+                badge.className = "px-3 py-1 text-xs font-black rounded-lg bg-pink-100 text-pink-600 border border-pink-200";
+                subtext.innerText = "Daily 1000MB Selling Active";
+                if (buyVipBtn) buyVipBtn.classList.add('hidden');
+            } else {
+                badge.innerText = "NORMAL";
+                badge.className = "px-3 py-1 text-xs font-black rounded-lg bg-gray-100 text-gray-600 border border-gray-200";
+                subtext.innerText = "Default Free Rate";
+                if (buyVipBtn) buyVipBtn.classList.remove('hidden');
+            }
+        }
+
+        function updateSellPageUI() {
+            if (!currentUser) return;
+
+            const btn20 = document.getElementById('btnSelect20MB');
+            const grid = document.getElementById('mbOptionsGrid');
+            const lockBadge = document.getElementById('vipLockBadge');
+            const vipSubtitle = document.getElementById('vipBtnSubtitle');
+            const vipPromo = document.getElementById('sellVipPromo');
+
+            if (currentUser.has_used_20mb) {
+                if (btn20) btn20.classList.add('hidden');
+                if (grid) grid.className = "grid grid-cols-1 gap-3";
+            } else {
+                if (btn20) btn20.classList.remove('hidden');
+                if (grid) grid.className = "grid grid-cols-2 gap-3";
+            }
+
+            if (currentUser.package === 'vip') {
+                if (lockBadge) lockBadge.classList.add('hidden');
+                if (vipSubtitle) {
+                    vipSubtitle.innerText = "Unlocked for VIP";
+                    vipSubtitle.className = "block text-[10px] text-emerald-600 font-bold mt-0.5";
+                }
+                if (vipPromo) vipPromo.classList.add('hidden');
+                check24HourTimer();
+            } else {
+                if (lockBadge) lockBadge.classList.remove('hidden');
+                if (vipSubtitle) {
+                    vipSubtitle.innerText = "To Sell Daily 1000 MB - Buy VIP";
+                    vipSubtitle.className = "block text-[10px] text-pink-700/80 font-medium mt-0.5";
+                }
+                if (vipPromo) vipPromo.classList.remove('hidden');
+            }
+        }
+
+        function selectMBOption(mb) {
+            if (isSelling) return;
+
+            if (mb === 20 && currentUser.has_used_20mb) {
+                alert("20MB option has already been used and is no longer available.");
+                return;
+            }
+
+            if (mb === 1000 && currentUser.package !== 'vip') {
+                alert("1000 MB selling requires VIP Package! Please Buy VIP.");
+                navigateTo('vip');
+                return;
+            }
+
+            if (mb === 1000 && isTimerActive()) {
+                alert("24 hours timer is running! Please wait until cooldown finishes.");
+                return;
+            }
+
+            selectedMB = mb;
+            document.getElementById('selectedDataLabel').innerText = `${mb} MB Selected`;
+
+            const startBtn = document.getElementById('btnStartSelling');
+            startBtn.disabled = false;
+            startBtn.className = "w-full bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 hover:from-pink-600 hover:to-rose-700 text-white font-black py-3 rounded-xl shadow-lg shadow-pink-200 transition cursor-pointer transform active:scale-95";
+
+            const btn20 = document.getElementById('btnSelect20MB');
+            const btn1000 = document.getElementById('btnSelect1000MB');
+
+            if (mb === 20) {
+                if (btn20) btn20.classList.add('pink-border-glow');
+                if (btn1000) btn1000.classList.remove('pink-border-glow');
+            } else {
+                if (btn1000) btn1000.classList.add('pink-border-glow');
+                if (btn20) btn20.classList.remove('pink-border-glow');
+            }
+        }
+
+        function executeDataSelling() {
+            if (!selectedMB || isSelling) return;
+
+            const earnAmount = (selectedMB === 20) ? 5 : 250;
+            isSelling = true;
+
+            const animBox = document.getElementById('sellingAnimationBox');
+            const animEst = document.getElementById('animEstEarning');
+            const animMbText = document.getElementById('animMbSellingText');
+            const animYourMbLabel = document.getElementById('animYourMbLabel');
+            const progressBar = document.getElementById('animProgressBar');
+            const percentText = document.getElementById('animPercentText');
+            const mbCounterText = document.getElementById('animMbCounterText');
+            const startBtn = document.getElementById('btnStartSelling');
+
+            startBtn.disabled = true;
+            startBtn.className = "w-full bg-gray-200 text-gray-400 font-extrabold py-3 rounded-xl shadow transition cursor-not-allowed";
+
+            animEst.innerText = `ESTIMATE EARNING - ${earnAmount} RUPPES`;
+            animMbText.innerText = `${selectedMB} MB SELLING NOW`;
+            animYourMbLabel.innerText = `YOUR ${selectedMB}MB`;
+            animBox.classList.remove('hidden');
+
+            let progress = 1;
+            progressBar.style.width = '1%';
+            percentText.innerText = '1%';
+            mbCounterText.innerText = `0 / ${selectedMB} MB`;
+
+            const animInterval = setInterval(() => {
+                progress += 1;
+                progressBar.style.width = progress + '%';
+                percentText.innerText = progress + '%';
+                
+                const currentTransferredMB = Math.round((selectedMB * progress) / 100);
+                mbCounterText.innerText = `${currentTransferredMB} / ${selectedMB} MB`;
+
+                if (progress >= 100) {
+                    clearInterval(animInterval);
+                    finishDataSelling(selectedMB, earnAmount);
+                }
+            }, 100);
+        }
+
+        function finishDataSelling(mb, earnings) {
+            const phone = currentUser.phone;
+            const now = Date.now();
+
+            const resetStateAndNotify = () => {
+                isSelling = false;
+                document.getElementById('sellingAnimationBox').classList.add('hidden');
+                document.getElementById('selectedDataLabel').innerText = "None Selected";
+                selectedMB = 0;
+                alert(`Success! ${mb} MB sold successfully. ₹${earnings} added to your balance.`);
+                updateSellPageUI();
+                updateDashboardUI();
+            };
+
+            if (useLocalStorageFallback || !db) {
+                const localDB = getLocalDB();
+                if (localDB.users[phone]) {
+                    const u = localDB.users[phone];
+                    u.total_income = (u.total_income || 0) + earnings;
+                    u.withdraw_balance = (u.withdraw_balance || 0) + earnings;
+                    u.total_mb_sell = (u.total_mb_sell || 0) + mb;
+                    if (mb === 20) u.has_used_20mb = true;
+                    if (mb === 1000) u.last_1000mb_sell = now;
+
+                    if (!localDB.sell_history) localDB.sell_history = {};
+                    if (!localDB.sell_history[phone]) localDB.sell_history[phone] = {};
+                    localDB.sell_history[phone]['sale_' + now] = { mb: mb, earned: earnings, timestamp: now };
+                    
+                    saveLocalDB(localDB);
+                    currentUser = u;
+                }
+                resetStateAndNotify();
+                return;
+            }
+
+            db.ref('users/' + phone).transaction((userData) => {
+                if (userData) {
+                    userData.total_income = (userData.total_income || 0) + earnings;
+                    userData.withdraw_balance = (userData.withdraw_balance || 0) + earnings;
+                    userData.total_mb_sell = (userData.total_mb_sell || 0) + mb;
+                    if (mb === 20) userData.has_used_20mb = true;
+                    if (mb === 1000) userData.last_1000mb_sell = now;
+                }
+                return userData;
+            }, (error, committed, snapshot) => {
+                if (error) {
+                    isSelling = false;
+                    document.getElementById('sellingAnimationBox').classList.add('hidden');
+                    alert("Transaction Failed: " + error.message);
+                } else if (committed) {
+                    db.ref('sell_history/' + phone).push({ mb: mb, earned: earnings, timestamp: now });
+                    if (snapshot && snapshot.exists()) {
+                        currentUser = snapshot.val();
+                    }
+                    resetStateAndNotify();
+                }
+            });
+        }
+
+        function check24HourTimer() {
+            if (!currentUser || currentUser.package !== 'vip' || !currentUser.last_1000mb_sell) return;
+            const now = Date.now();
+            const timePassed = now - currentUser.last_1000mb_sell;
+            const twentyFourHoursMs = 24 * 60 * 60 * 1000;
+
+            if (timePassed < twentyFourHoursMs) {
+                startCountdownTimer(twentyFourHoursMs - timePassed);
+            } else {
+                resetCountdownUI();
+            }
+        }
+
+        function isTimerActive() {
+            if (!currentUser || currentUser.package !== 'vip' || !currentUser.last_1000mb_sell) return false;
+            return (Date.now() - currentUser.last_1000mb_sell) < (24 * 60 * 60 * 1000);
+        }
+
+        function startCountdownTimer(msRemaining) {
+            if (timerInterval) clearInterval(timerInterval);
+            const vipSubtitle = document.getElementById('vipBtnSubtitle');
+
+            function updateTimerDisplay() {
+                if (msRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    resetCountdownUI();
+                    return;
+                }
+                const hours = Math.floor(msRemaining / (1000 * 60 * 60));
+                const minutes = Math.floor((msRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((msRemaining % (1000 * 60)) / 1000);
+
+                if (vipSubtitle && currentUser && currentUser.package === 'vip') {
+                    vipSubtitle.innerText = `Timer: ${hours}h ${minutes}m ${seconds}s`;
+                    vipSubtitle.className = "block text-[10px] text-pink-600 font-mono font-bold mt-0.5";
+                }
+                msRemaining -= 1000;
+            }
+
+            updateTimerDisplay();
+            timerInterval = setInterval(updateTimerDisplay, 1000);
+        }
+
+        function resetCountdownUI() {
+            const vipSubtitle = document.getElementById('vipBtnSubtitle');
+            if (vipSubtitle && currentUser && currentUser.package === 'vip') {
+                vipSubtitle.innerText = "Unlocked for VIP";
+                vipSubtitle.className = "block text-[10px] text-emerald-600 font-bold mt-0.5";
+            }
+        }
+
+        function renderSellHistory(data) {
+            const container = document.getElementById('sellHistoryList');
+
+            if (!data) {
+                const emptyHTML = `<div class="text-gray-400 text-center py-2 text-xs font-medium">No recent sales data recorded</div>`;
+                if (container) container.innerHTML = emptyHTML;
+                return;
+            }
+
+            const items = Object.values(data).reverse().slice(0, 10);
+            const renderedItems = items.map(item => `
+                <div class="glass-card p-3 rounded-xl border border-pink-200 flex justify-between items-center text-xs shadow-sm">
+                    <div>
+                        <span class="font-extrabold text-gray-800 block">Data: ${item.mb}MB Selled</span>
+                        <span class="text-[10px] text-gray-400">${new Date(item.timestamp).toLocaleTimeString()}</span>
+                    </div>
+                    <span class="text-emerald-600 font-black">Earn - ₹${item.earned}</span>
+                </div>
+            `).join('');
+
+            if (container) container.innerHTML = renderedItems;
+        }
+
+        function openVipPaymentModal() {
+            document.getElementById('vipPaymentModal').classList.remove('hidden');
+        }
+
+        function closeVipPaymentModal() {
+            document.getElementById('vipPaymentModal').classList.add('hidden');
+        }
+
+        function checkVipFormValid() {
+            const whatsapp = document.getElementById('vipWhatsapp').value.trim();
+            const utr = document.getElementById('vipUtr').value.trim();
+            const doneBtn = document.getElementById('vipDoneBtn');
+
+            if (whatsapp.length === 10 && utr.length >= 12 && utr.length <= 20) {
+                doneBtn.disabled = false;
+                doneBtn.className = "w-full bg-pink-500 text-white font-black py-3 rounded-xl shadow-lg shadow-pink-200 transition duration-200 hover:bg-pink-600 cursor-pointer";
+            } else {
+                doneBtn.disabled = true;
+                doneBtn.className = "w-full bg-gray-200 text-gray-400 font-extrabold py-3 rounded-xl transition duration-200 cursor-not-allowed";
+            }
+        }
+
+        function submitVipPaymentRequest() {
+            const whatsapp = document.getElementById('vipWhatsapp').value.trim();
+            const utr = document.getElementById('vipUtr').value.trim();
+
+            if (!currentUser) return;
+
+            const reqData = {
+                userName: currentUser.name,
+                phone: currentUser.phone,
+                whatsapp: whatsapp,
+                utr: utr,
+                status: 'pending',
+                timestamp: Date.now()
+            };
+
+            const onDone = () => {
+                alert("Done Your Request Submit");
+                closeVipPaymentModal();
+                document.getElementById('vipWhatsapp').value = '';
+                document.getElementById('vipUtr').value = '';
+                checkVipFormValid();
+            };
+
+            if (useLocalStorageFallback || !db) {
+                const localDB = getLocalDB();
+                if (!localDB.vip_requests) localDB.vip_requests = {};
+                const newKey = 'req_' + Date.now();
+                localDB.vip_requests[newKey] = reqData;
+                saveLocalDB(localDB);
+                renderVipRequestStatus(localDB.vip_requests);
+                onDone();
+            } else {
+                db.ref('vip_requests').push(reqData, (err) => {
+                    if (!err) onDone();
+                    else alert("Failed to submit request: " + err.message);
+                });
+            }
+        }
+
+        function renderVipRequestStatus(data) {
+            const container = document.getElementById('vipRequestStatusList');
+            if (!container) return;
+
+            if (!data) {
+                container.innerHTML = `
+                    <div class="glass-card p-3.5 rounded-xl border border-pink-200 flex justify-between items-center text-xs">
+                        <span class="font-bold text-gray-700">ViP RaZa</span>
+                        <span class="text-gray-400">status: None</span>
+                    </div>`;
+                return;
+            }
+
+            const reqs = Object.values(data).filter(r => r && r.phone === currentUser.phone).reverse();
+            if (reqs.length === 0) {
+                container.innerHTML = `
+                    <div class="glass-card p-3.5 rounded-xl border border-pink-200 flex justify-between items-center text-xs">
+                        <span class="font-bold text-gray-700">ViP RaZa</span>
+                        <span class="text-gray-400">status: None</span>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = reqs.map(req => {
+                let statusBadge = `<span class="text-amber-500 font-bold">Pending</span>`;
+                if (req.status === 'active' || req.status === 'Active') {
+                    statusBadge = `<span class="text-emerald-600 font-bold">Active</span>`;
+                } else if (req.status === 'rejected' || req.status === 'Rejected') {
+                    statusBadge = `<span class="text-rose-600 font-bold">Rejected</span>`;
+                }
+
+                return `
+                    <div class="glass-card p-3.5 rounded-xl border border-pink-200 flex justify-between items-center text-xs shadow-sm">
+                        <div>
+                            <span class="font-bold text-gray-800 block">ViP RaZa</span>
+                            <span class="text-[10px] text-gray-400 font-mono">UTR: ${req.utr}</span>
+                        </div>
+                        <div class="font-medium text-gray-600">status: ${statusBadge}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function calculateWithdrawBreakdown() {
+            const amtInput = document.getElementById('withdrawAmt');
+            const feeNotice = document.getElementById('withdrawFeeNotice');
+            const breakdownText = document.getElementById('withdrawBreakdownText');
+            
+            if (!currentUser || !amtInput || !feeNotice || !breakdownText) return;
+
+            const val = parseFloat(amtInput.value) || 0;
+            if (currentUser.package === 'vip' && val > 0) {
+                feeNotice.classList.remove('hidden');
+                const fee = val * 0.90;
+                const userGets = val - fee;
+                breakdownText.innerHTML = `Fees (90%): ₹${fee.toFixed(2)} | You Will Get: <span class="text-emerald-600 font-black">₹${userGets.toFixed(2)}</span>`;
+                breakdownText.classList.remove('hidden');
+            } else {
+                feeNotice.classList.add('hidden');
+                breakdownText.classList.add('hidden');
+            }
+        }
+
+        function handleWithdrawSubmit(e) {
+            e.preventDefault();
+            const amt = parseFloat(document.getElementById('withdrawAmt').value);
+            const phoneNum = document.getElementById('withdrawUpi').value.trim();
+
+            if (!currentUser) return;
+            if (amt < 5) return alert("Minimum withdraw amount is ₹5.");
+            if (amt > (currentUser.withdraw_balance || 0)) return alert("Insufficient Withdraw Balance!");
+            if (phoneNum.length !== 10) return alert("Please enter a valid 10-digit phone number.");
+
+            let finalAmountToUser = amt;
+            let adminFee = 0;
+
+            if (currentUser.package === 'vip') {
+                adminFee = amt * 0.90;
+                finalAmountToUser = amt - adminFee;
+            }
+
+            const newBal = currentUser.withdraw_balance - amt;
+            currentUser.withdraw_balance = newBal;
+
+            const reqData = {
+                userName: currentUser.name,
+                phone: currentUser.phone,
+                amount: amt,
+                userGets: finalAmountToUser,
+                adminFee: adminFee,
+                upi_id: phoneNum,
+                status: 'pending',
+                timestamp: Date.now()
+            };
+
+            const onDone = () => {
+                alert("Withdraw Request Submitted Successfully!");
+                document.getElementById('withdrawAmt').value = '';
+                document.getElementById('withdrawUpi').value = '';
+                calculateWithdrawBreakdown();
+                updateDashboardUI();
+                document.getElementById('withdrawCurrentBal').innerText = currentUser.withdraw_balance;
+            };
+
+            if (useLocalStorageFallback || !db) {
+                const localDB = getLocalDB();
+                if (localDB.users[currentUser.phone]) {
+                    localDB.users[currentUser.phone].withdraw_balance = newBal;
+                }
+                if (!localDB.withdraw_requests) localDB.withdraw_requests = {};
+                const newKey = 'with_' + Date.now();
+                localDB.withdraw_requests[newKey] = reqData;
+                saveLocalDB(localDB);
+                renderWithdrawHistory(localDB.withdraw_requests);
+                onDone();
+            } else {
+                db.ref('users/' + currentUser.phone).update({ withdraw_balance: newBal }, (err) => {
+                    if (!err) {
+                        db.ref('withdraw_requests').push(reqData);
+                        onDone();
+                    } else {
+                        alert("Error processing withdrawal: " + err.message);
+                    }
+                });
+            }
+        }
+
+        function renderWithdrawHistory(data) {
+            const container = document.getElementById('withdrawHistoryList');
+            if (!container) return;
+
+            if (!data) {
+                container.innerHTML = `<div class="text-gray-400 text-center py-3 glass-card rounded-xl text-xs">No withdraw requests found</div>`;
+                return;
+            }
+
+            const reqs = Object.values(data).filter(r => r && r.phone === currentUser.phone).reverse();
+            if (reqs.length === 0) {
+                container.innerHTML = `<div class="text-gray-400 text-center py-3 glass-card rounded-xl text-xs">No withdraw requests found</div>`;
+                return;
+            }
+
+            container.innerHTML = reqs.map(req => {
+                let statusTag = `<span class="text-amber-500 font-bold">Pending</span>`;
+                if (req.status === 'success' || req.status === 'Success') {
+                    statusTag = `<span class="text-emerald-600 font-bold">Success</span>`;
+                }
+
+                let amountDisplay = `Withdraw ₹${req.amount}`;
+                if (req.adminFee && req.adminFee > 0) {
+                    amountDisplay = `Withdraw ₹${req.amount} <span class="text-[10px] text-pink-600 block">(Got: ₹${req.userGets}, Fee: ₹${req.adminFee})</span>`;
+                }
+
+                return `
+                    <div class="glass-card p-3.5 rounded-xl border border-pink-200 flex justify-between items-center text-xs shadow-sm">
+                        <div>
+                            <span class="font-extrabold text-gray-800 block">${amountDisplay}</span>
+                            <span class="text-[10px] text-gray-400 font-mono">Phone: ${req.upi_id || req.upi}</span>
+                        </div>
+                        <div>${statusTag}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openPrivacyModal() { document.getElementById('privacyModal').classList.remove('hidden'); }
+        function closePrivacyModal() { document.getElementById('privacyModal').classList.add('hidden'); }
+
+        function openAdminModal() { document.getElementById('adminModal').classList.remove('hidden'); }
+        function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
+
+        function unlockAdmin() {
+            const pass = document.getElementById('adminPassInput').value;
+            if (pass === '882279') {
+                document.getElementById('adminAuthBox').classList.add('hidden');
+                document.getElementById('adminContentBox').classList.remove('hidden');
+                loadAdminData();
+            } else {
+                alert("Incorrect Admin Security Password!");
+            }
+        }
+
+        function switchAdminTab(tab) {
+            const vipSec = document.getElementById('adminVipSection');
+            const withSec = document.getElementById('adminWithdrawSection');
+            const tabVipBtn = document.getElementById('adminTabVipBtn');
+            const tabWithBtn = document.getElementById('adminTabWithBtn');
+
+            if (tab === 'vip') {
+                vipSec.classList.remove('hidden');
+                withSec.classList.add('hidden');
+                tabVipBtn.className = "py-2 font-bold rounded-lg text-pink-600 bg-white shadow-sm";
+                tabWithBtn.className = "py-2 font-bold rounded-lg text-gray-500";
+            } else {
+                withSec.classList.remove('hidden');
+                vipSec.classList.add('hidden');
+                tabWithBtn.className = "py-2 font-bold rounded-lg text-emerald-600 bg-white shadow-sm";
+                tabVipBtn.className = "py-2 font-bold rounded-lg text-gray-500";
+            }
+        }
+
+        function loadAdminData() {
+            if (useLocalStorageFallback || !db) {
+                const localDB = getLocalDB();
+                renderAdminUsers(localDB.users || {});
+                renderAdminVip(localDB.vip_requests || {});
+                renderAdminWithdraw(localDB.withdraw_requests || {});
+            } else {
+                db.ref('users').on('value', snap => renderAdminUsers(snap.val() || {}));
+                db.ref('vip_requests').on('value', snap => renderAdminVip(snap.val() || {}));
+                db.ref('withdraw_requests').on('value', snap => renderAdminWithdraw(snap.val() || {}));
+            }
+        }
+
+        function renderAdminUsers(users) {
+            document.getElementById('adminTotalUsers').innerText = Object.keys(users).length;
+        }
+
+        function renderAdminVip(data) {
+            const container = document.getElementById('adminVipSection');
+            if (!container) return;
+
+            if (!data) {
+                document.getElementById('adminTotalVipReqs').innerText = 0;
+                container.innerHTML = `<div class="text-xs text-gray-400 text-center py-4">No VIP requests yet</div>`;
+                return;
+            }
+
+            const entries = Object.entries(data);
+            document.getElementById('adminTotalVipReqs').innerText = entries.length;
+
+            container.innerHTML = entries.reverse().map(([key, item]) => {
+                return `
+                    <div class="bg-pink-50/70 p-3 rounded-xl border border-pink-200 space-y-1 text-xs">
+                        <div class="flex justify-between font-bold text-gray-800">
+                            <span>${item.userName || 'User'} (${item.phone})</span>
+                            <span class="text-pink-600 uppercase">${item.status}</span>
+                        </div>
+                        <div class="text-[11px] text-gray-500">
+                            WhatsApp: ${item.whatsapp} | UTR: <strong class="text-gray-800">${item.utr}</strong>
+                        </div>
+                        ${item.status === 'pending' ? `
+                            <div class="flex gap-2 pt-2">
+                                <button onclick="approveAdminVip('${key}', '${item.phone}')" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold py-1.5 rounded text-[11px] shadow-sm">Active (Approve VIP)</button>
+                                <button onclick="rejectAdminVip('${key}')" class="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-extrabold py-1.5 rounded text-[11px] shadow-sm">Reject</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAdminWithdraw(data) {
+            const container = document.getElementById('adminWithdrawSection');
+            if (!container) return;
+
+            if (!data) {
+                document.getElementById('adminTotalWithReqs').innerText = 0;
+                container.innerHTML = `<div class="text-xs text-gray-400 text-center py-4">No withdraw requests yet</div>`;
+                return;
+            }
+
+            const entries = Object.entries(data);
+            document.getElementById('adminTotalWithReqs').innerText = entries.length;
+
+            container.innerHTML = entries.reverse().map(([key, item]) => {
+                let feeInfo = '';
+                if (item.adminFee && item.adminFee > 0) {
+                    feeInfo = `<div class="text-[11px] text-pink-600 font-semibold">User Gets: ₹${item.userGets} | Fee to Admin: ₹${item.adminFee}</div>`;
+                }
+
+                return `
+                    <div class="bg-pink-50/70 p-3 rounded-xl border border-pink-200 space-y-1 text-xs">
+                        <div class="flex justify-between font-bold text-gray-800">
+                            <span>${item.userName || 'User'} (${item.phone})</span>
+                            <span class="text-emerald-600 font-black">₹${item.amount}</span>
+                        </div>
+                        <div class="text-[11px] text-gray-500">
+                            Phone: <strong class="text-gray-800">${item.upi_id || item.upi}</strong> | Status: ${item.status}
+                        </div>
+                        ${feeInfo}
+                        ${item.status === 'pending' ? `
+                            <button onclick="approveAdminWithdraw('${key}')" class="w-full mt-2 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold py-1.5 rounded text-[11px] shadow-sm">Mark Withdraw Success</button>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function approveAdminVip(reqKey, userPhone) {
+            if (useLocalStorageFallback || !db) {
+                const localDB = getLocalDB();
+                if (localDB.users[userPhone]) localDB.users[userPhone].package = 'vip';
+                if (localDB.vip_requests && localDB.vip_requests[reqKey]) localDB.vip_requests[reqKey].status = 'active';
+                saveLocalDB(localDB);
+                loadAdminData();
+            } else {
+                db.ref('users/' + userPhone).update({ package: 'vip' });
+                db.ref('vip_requests/' + reqKey).update({ status: 'active' });
+            }
+            alert("VIP Package Activated for user!");
+        }
+
+        function rejectAdminVip(reqKey) {
+            if (useLocalStorageFallback || !db) {
+                const localDB = getLocalDB();
+                if (localDB.vip_requests && localDB.vip_requests[reqKey]) localDB.vip_requests[reqKey].status = 'rejected';
+                saveLocalDB(localDB);
+                loadAdminData();
+            } else {
+                db.ref('vip_requests/' + reqKey).update({ status: 'rejected' });
+            }
+            alert("VIP Request Rejected.");
+        }
+
+        function approveAdminWithdraw(reqKey) {
+            if (useLocalStorageFallback || !db) {
+                const localDB = getLocalDB();
+                if (localDB.withdraw_requests && localDB.withdraw_requests[reqKey]) localDB.withdraw_requests[reqKey].status = 'success';
+                saveLocalDB(localDB);
+                loadAdminData();
+            } else {
+                db.ref('withdraw_requests/' + reqKey).update({ status: 'success' });
+            }
+            alert("Withdraw request marked as Done / Success!");
+        }
+    </script>
+</body>
+</html>
