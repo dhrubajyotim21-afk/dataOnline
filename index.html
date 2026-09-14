@@ -1,1668 +1,844 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>DataOnline Admin Panel</title>
+<title>24online.com</title>
 
 <style>
-
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial,sans-serif;
-    -webkit-user-select:none;
-    user-select:none;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f5f6f8;
+  color:#111;
 }
 
 body{
-    background:#f4f6f8;
-    color:#222;
+  user-select:none;
+  -webkit-user-select:none;
 }
 
-input,
-select,
-textarea{
-    -webkit-user-select:text;
-    user-select:text;
+input,textarea,select{
+  user-select:text;
+  -webkit-user-select:text;
 }
 
-.header{
-    background:#111;
-    color:white;
-    text-align:center;
-    padding:18px 15px;
+/* Top Bar */
+.topbar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:42px;
+  background:#111;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  padding-left:18px;
+  font-size:18px;
+  font-weight:800;
+  letter-spacing:.3px;
+  z-index:9999;
+  box-shadow:0 2px 10px rgba(0,0,0,.15);
 }
 
-.header h1{
-    font-size:23px;
-}
-
-.header p{
-    color:#aaa;
-    font-size:12px;
-    margin-top:4px;
-}
-
+/* Container */
 .container{
-    width:94%;
-    max-width:850px;
-    margin:18px auto;
+  width:100%;
+  max-width:900px;
+  margin:auto;
+  padding:65px 14px 35px;
 }
 
-.menu-buttons{
-    display:flex;
-    gap:8px;
-    overflow-x:auto;
-    scrollbar-width:none;
-    margin-bottom:15px;
+/* Header */
+.header{
+  background:#fff;
+  border-radius:18px;
+  padding:22px 18px;
+  text-align:left;
+  box-shadow:0 5px 20px rgba(0,0,0,.06);
+  margin-bottom:16px;
 }
 
-.menu-buttons::-webkit-scrollbar{
-    display:none;
+.logo{
+  font-size:30px;
+  font-weight:900;
+  margin:0;
 }
 
-.menu-btn,
-.calculate-btn{
-    border:0;
-    border-radius:7px;
-    padding:11px 16px;
-    font-size:13px;
-    font-weight:bold;
-    white-space:nowrap;
-    cursor:pointer;
+.tagline{
+  margin:7px 0 0;
+  color:#666;
+  font-size:14px;
 }
 
-.menu-btn{
-    background:white;
-    color:#222;
-    box-shadow:0 2px 7px rgba(0,0,0,.07);
+/* Our Packages Header */
+.package-header{
+  background:#ffd600;
+  border-radius:15px;
+  padding:15px;
+  margin-bottom:16px;
 }
 
-.menu-btn.active{
-    background:#111;
-    color:white;
+.package-header-title{
+  font-size:20px;
+  font-weight:900;
 }
 
-.calculate-btn{
-    background:#ffd83d;
-    color:#111;
+.package-header-sub{
+  font-size:13px;
+  margin-top:4px;
+  color:#333;
 }
 
-.card{
-    background:white;
-    border-radius:11px;
-    padding:16px;
-    margin-top:16px;
-    box-shadow:0 2px 10px rgba(0,0,0,.06);
+/* Free Box */
+.free-box{
+  background:#fff;
+  border-radius:15px;
+  padding:14px;
+  margin-bottom:18px;
+  box-shadow:0 4px 15px rgba(0,0,0,.06);
 }
 
-.card h2{
-    font-size:18px;
-    margin-bottom:14px;
+.free-title{
+  font-size:17px;
+  font-weight:900;
 }
 
-.input-group{
-    margin-bottom:13px;
+.free-sub{
+  color:#777;
+  font-size:13px;
+  margin-top:4px;
 }
 
-.input-group label{
-    display:block;
-    font-size:13px;
-    font-weight:bold;
-    margin-bottom:6px;
+/* Section */
+.section-title{
+  font-size:18px;
+  font-weight:900;
+  margin:5px 2px 12px;
 }
 
-.input-group input{
-    width:100%;
-    padding:11px;
-    border:1px solid #ddd;
-    border-radius:7px;
-    outline:none;
-    font-size:14px;
+/* Package Grid */
+.packages{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
 }
 
-.input-group input:focus{
-    border-color:#111;
-}
-
-.save-btn{
-    width:100%;
-    border:0;
-    background:#111;
-    color:white;
-    padding:12px;
-    border-radius:7px;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-.package{
-    background:#fafafa;
-    border:1px solid #e8e8e8;
-    border-radius:8px;
-    padding:12px;
-    margin-top:9px;
-}
-
-.package-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
+/* Package Card */
+.package-card{
+  background:#fff;
+  border-radius:13px;
+  padding:12px;
+  box-shadow:0 3px 12px rgba(0,0,0,.07);
+  border:1px solid #eee;
+  min-height:205px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
 }
 
 .package-name{
-    font-size:14px;
-    font-weight:bold;
-    flex:1;
-}
-
-.package-actions{
-    display:flex;
-    gap:5px;
-    flex-shrink:0;
-}
-
-.edit-btn{
-    border:0;
-    background:#111;
-    color:white;
-    padding:6px 9px;
-    border-radius:5px;
-    font-size:11px;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-.delete-btn{
-    border:0;
-    background:#ff4141;
-    color:white;
-    padding:6px 9px;
-    border-radius:5px;
-    font-size:11px;
-    font-weight:bold;
-    cursor:pointer;
+  font-size:14px;
+  color:#777;
+  margin-bottom:8px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 .package-details{
-    margin-top:7px;
-    font-size:12px;
-    color:#555;
-    line-height:1.8;
+  font-size:14px;
+  line-height:1.65;
+  margin-bottom:7px;
 }
 
-.offer-badge{
-    display:inline-block;
-    background:#e8f7e8;
-    color:#168016;
-    padding:2px 6px;
-    border-radius:4px;
-    font-size:11px;
-    font-weight:bold;
+.package-details div{
+  display:flex;
+  justify-content:space-between;
+  gap:5px;
 }
 
-.edit-area{
-    margin-top:10px;
-    padding:10px;
-    background:white;
-    border:1px solid #ddd;
-    border-radius:7px;
+.package-label{
+  color:#777;
 }
 
-.edit-group{
-    margin-bottom:9px;
+.package-value{
+  font-weight:800;
+  text-align:right;
 }
 
-.edit-group label{
-    display:block;
-    font-size:11px;
-    font-weight:bold;
-    margin-bottom:4px;
-    color:#555;
+.package-price{
+  font-size:19px;
+  font-weight:900;
+  margin-top:5px;
+  margin-bottom:7px;
 }
 
-.edit-group input{
-    width:100%;
-    padding:9px;
-    border:1px solid #ddd;
-    border-radius:6px;
-    outline:none;
-    font-size:13px;
-    user-select:text;
-    -webkit-user-select:text;
+.package-offer{
+  display:inline-block;
+  font-size:10px;
+  font-weight:800;
+  background:#e8f8e8;
+  color:#16851d;
+  padding:3px 6px;
+  border-radius:6px;
+  margin-bottom:8px;
+  width:max-content;
 }
 
-.edit-buttons{
-    display:flex;
-    gap:7px;
-    margin-top:8px;
+.buy-btn{
+  width:100%;
+  border:0;
+  background:#ffd600;
+  color:#111;
+  padding:9px 8px;
+  border-radius:9px;
+  font-size:13px;
+  font-weight:900;
+  cursor:pointer;
 }
 
-.update-btn{
-    flex:1;
-    border:0;
-    background:#111;
-    color:white;
-    padding:9px;
-    border-radius:6px;
-    font-size:12px;
-    font-weight:bold;
-    cursor:pointer;
+.buy-btn:active{
+  transform:scale(.98);
 }
 
-.cancel-btn{
-    flex:1;
-    border:0;
-    background:#e8e8e8;
-    color:#222;
-    padding:9px;
-    border-radius:6px;
-    font-size:12px;
-    font-weight:bold;
-    cursor:pointer;
+/* Loading */
+.loading{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:45px 10px;
+  color:#777;
 }
 
-/* CALCULATOR */
-
-#calculatorView{
-    display:none;
+.spinner{
+  width:32px;
+  height:32px;
+  border:4px solid #ddd;
+  border-top-color:#111;
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+  margin-bottom:12px;
 }
 
-#calculatorView.show{
-    display:block;
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
 }
 
-#mainView.hide{
-    display:none;
+.empty{
+  background:#fff;
+  padding:25px 15px;
+  text-align:center;
+  border-radius:14px;
+  color:#777;
+  box-shadow:0 3px 12px rgba(0,0,0,.05);
+}
+
+.retry-btn{
+  margin-top:12px;
+  border:0;
+  background:#ffd600;
+  padding:9px 18px;
+  border-radius:9px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+/* Order Page */
+.order-page{
+  display:none;
+}
+
+.order-box{
+  background:#fff;
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 5px 20px rgba(0,0,0,.07);
 }
 
 .back-btn{
-    border:0;
-    background:#111;
-    color:white;
-    padding:9px 14px;
-    border-radius:7px;
-    font-size:13px;
-    font-weight:bold;
-    cursor:pointer;
-    margin-bottom:13px;
+  border:0;
+  background:#eee;
+  padding:9px 14px;
+  border-radius:9px;
+  font-weight:800;
+  cursor:pointer;
+  margin-bottom:18px;
 }
 
-.calculator-card{
-    background:white;
-    border-radius:11px;
-    padding:17px;
-    box-shadow:0 2px 10px rgba(0,0,0,.06);
+.order-title{
+  font-size:22px;
+  font-weight:900;
+  margin-bottom:18px;
 }
 
-.calculator-card h2{
-    font-size:19px;
-    margin-bottom:15px;
+.field{
+  margin-bottom:13px;
 }
 
-.calc-group{
-    margin-bottom:13px;
+.field label{
+  display:block;
+  font-size:13px;
+  font-weight:800;
+  margin-bottom:6px;
+  color:#555;
 }
 
-.calc-group label{
-    display:block;
-    font-size:13px;
-    font-weight:bold;
-    margin-bottom:6px;
+.field input{
+  width:100%;
+  padding:12px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  outline:none;
+  font-size:14px;
+  background:#f8f8f8;
 }
 
-.calc-group input{
-    width:100%;
-    padding:11px;
-    border:1px solid #ddd;
-    border-radius:7px;
-    outline:none;
-    font-size:14px;
+.field input:focus{
+  border-color:#aaa;
 }
 
-.calc-button{
-    width:100%;
-    border:0;
-    background:#ffd83d;
-    color:#111;
-    padding:12px;
-    border-radius:7px;
-    font-size:14px;
-    font-weight:bold;
-    cursor:pointer;
+.order-btn{
+  width:100%;
+  margin-top:8px;
+  padding:13px;
+  border:0;
+  border-radius:11px;
+  background:#ddd;
+  color:#777;
+  font-size:15px;
+  font-weight:900;
+  cursor:not-allowed;
 }
 
-.result-box{
-    margin-top:14px;
-    padding:13px;
-    background:#f5f5f5;
-    border-radius:8px;
-    font-size:13px;
-    line-height:1.8;
+.order-btn.active{
+  background:#ffd600;
+  color:#111;
+  cursor:pointer;
 }
 
-.discount-big{
-    font-size:20px;
-    font-weight:bold;
+.note{
+  font-size:12px;
+  color:#777;
+  margin-top:7px;
 }
 
-.saved-big{
-    font-weight:bold;
-}
-
+/* Mobile */
 @media(max-width:600px){
 
-    .container{
-        width:94%;
-    }
+  .container{
+    padding-left:11px;
+    padding-right:11px;
+  }
 
-    .menu-btn,
-    .calculate-btn{
-        padding:9px 12px;
-        font-size:12px;
-    }
+  .header{
+    padding:19px 15px;
+  }
 
-    .card{
-        padding:14px;
-    }
+  .logo{
+    font-size:27px;
+  }
 
+  .packages{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+
+  .package-card{
+    padding:10px;
+    min-height:205px;
+  }
+
+  .package-details{
+    font-size:13px;
+  }
+
+  .package-price{
+    font-size:17px;
+  }
+
+  .buy-btn{
+    padding:8px 5px;
+  }
 }
 
+@media(max-width:360px){
+
+  .packages{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .package-details{
+    font-size:12px;
+  }
+
+  .package-card{
+    min-height:200px;
+  }
+}
 </style>
 </head>
 
 <body>
 
-<!-- HEADER -->
-
-<div class="header">
-
-    <h1>DataOnline Admin Panel</h1>
-
-    <p>Manage Packages & Offers</p>
-
+<div class="topbar">
+  24online.Com
 </div>
-
-
-<!-- MAIN -->
-
-<div id="mainView">
 
 <div class="container">
 
+  <!-- HOME PAGE -->
+  <div id="homePage">
 
-<!-- MENU -->
+    <div class="header">
+      <h1 class="logo">24online.com</h1>
+      <p class="tagline">
+        100% Real Service And Trusted Website.
+      </p>
+    </div>
 
-<div class="menu-buttons">
-
-    <button
-        class="menu-btn active"
-        onclick="showPackages()">
-
+    <!-- ONLY OUR PACKAGES -->
+    <div class="package-header">
+      <div class="package-header-title">
         Our Packages
+      </div>
 
-    </button>
+      <div class="package-header-sub">
+        Choose your package and place your order easily.
+      </div>
+    </div>
 
-    <button
-        class="calculate-btn"
-        onclick="openCalculator()">
+    <div class="free-box">
+      <div class="free-title">
+        Free 1000 Views
+      </div>
 
-        Offer Calculator
+      <div class="free-sub">
+        Try our service before purchasing.
+      </div>
+    </div>
 
-    </button>
+    <div class="section-title">
+      Our Packages
+    </div>
 
-</div>
+    <div id="packageArea">
+
+      <div class="loading">
+        <div class="spinner"></div>
+        <div>Loading packages...</div>
+      </div>
+
+    </div>
+
+  </div>
 
 
-<!-- ADD PACKAGE -->
+  <!-- ORDER PAGE -->
+  <div class="order-page" id="orderPage">
 
-<div class="card">
+    <div class="order-box">
 
-    <h2>
-        Add Our Package
-    </h2>
+      <button class="back-btn" onclick="backHome()">
+        ← Back
+      </button>
 
+      <div class="order-title">
+        Place Your Order
+      </div>
 
-    <!-- PACKAGE NAME -->
+      <div class="field">
+        <label>Package Name</label>
+        <input id="orderPackage" readonly>
+      </div>
 
-    <div class="input-group">
+      <div class="field">
+        <label>Views</label>
+        <input id="orderViews" readonly>
+      </div>
+
+      <div class="field">
+        <label>Likes</label>
+        <input id="orderLikes" readonly>
+      </div>
+
+      <div class="field">
+        <label>Shares</label>
+        <input id="orderShares" readonly>
+      </div>
+
+      <div class="field">
+        <label>Price</label>
+        <input id="orderPrice" readonly>
+      </div>
+
+      <div class="field">
 
         <label>
-            Package Name
+          Paste Your Instagram Reels/Post Link
         </label>
 
         <input
-            type="text"
-            id="packageName"
-            placeholder="Example: Package 1"
-            autocomplete="off">
+          type="url"
+          id="instagramLink"
+          placeholder="Paste Instagram link"
+          oninput="checkInstagramLink()"
+        >
+
+        <div class="note">
+          Enter a valid Instagram Post or Reel link.
+        </div>
+
+      </div>
+
+      <button
+        class="order-btn"
+        id="orderBtn"
+        onclick="placeOrder()"
+        disabled
+      >
+        Order Now
+      </button>
 
     </div>
 
-
-    <!-- VIEWS -->
-
-    <div class="input-group">
-
-        <label>
-            Views
-        </label>
-
-        <input
-            type="text"
-            id="views"
-            placeholder="Example: 100K"
-            autocomplete="off">
-
-    </div>
-
-
-    <!-- LIKES -->
-
-    <div class="input-group">
-
-        <label>
-            Likes
-        </label>
-
-        <input
-            type="text"
-            id="likes"
-            placeholder="Example: 5K"
-            autocomplete="off">
-
-    </div>
-
-
-    <!-- SHARES -->
-
-    <div class="input-group">
-
-        <label>
-            Shares
-        </label>
-
-        <input
-            type="text"
-            id="shares"
-            placeholder="Example: 3K"
-            autocomplete="off">
-
-    </div>
-
-
-    <!-- PRICE -->
-
-    <div class="input-group">
-
-        <label>
-            Price (₹)
-        </label>
-
-        <input
-            type="text"
-            id="price"
-            placeholder="Example: 199"
-            autocomplete="off">
-
-    </div>
-
-
-    <!-- OFFER -->
-
-    <div class="input-group">
-
-        <label>
-            Offer (%)
-        </label>
-
-        <input
-            type="text"
-            id="offer"
-            placeholder="Example: 20"
-            autocomplete="off">
-
-    </div>
-
-
-    <button
-        class="save-btn"
-        onclick="savePackage()">
-
-        Save Package
-
-    </button>
-
-</div>
-
-
-<!-- PACKAGE LIST -->
-
-<div class="card">
-
-    <h2>
-        Our Packages
-    </h2>
-
-    <div id="packageList">
-        Loading...
-    </div>
-
-</div>
-
-</div>
-
-</div>
-
-
-<!-- CALCULATOR -->
-
-<div id="calculatorView">
-
-<div class="container">
-
-<button
-    class="back-btn"
-    onclick="closeCalculator()">
-
-    ← Back
-
-</button>
-
-
-<div class="calculator-card">
-
-    <h2>
-        Offer Calculator
-    </h2>
-
-
-    <div class="calc-group">
-
-        <label>
-            Rate Per
-        </label>
-
-        <input
-            type="text"
-            id="ratePer"
-            placeholder="Example: 1K">
-
-    </div>
-
-
-    <div class="calc-group">
-
-        <label>
-            Price For Rate (₹)
-        </label>
-
-        <input
-            type="text"
-            id="normalRate"
-            placeholder="Example: 10">
-
-    </div>
-
-
-    <div class="calc-group">
-
-        <label>
-            Customer Quantity
-        </label>
-
-        <input
-            type="text"
-            id="calcQuantity"
-            placeholder="Example: 100K">
-
-    </div>
-
-
-    <div class="calc-group">
-
-        <label>
-            Set Price (₹)
-        </label>
-
-        <input
-            type="text"
-            id="setPrice"
-            placeholder="Example: 199">
-
-    </div>
-
-
-    <button
-        class="calc-button"
-        onclick="calculateDiscount()">
-
-        Calculate Offer
-
-    </button>
-
-
-    <div
-        class="result-box"
-        id="calculatorResult">
-
-        Enter the values.
-
-    </div>
-
-</div>
-
-</div>
+  </div>
 
 </div>
 
 
 <script>
 
-/* =================================
-   FIREBASE
-================================= */
+const FIREBASE_URL =
+  "https://datacash-95a80-default-rtdb.firebaseio.com";
 
-const DATABASE_URL =
-"https://datacash-95a80-default-rtdb.firebaseio.com";
+const WHATSAPP_NUMBER =
+  "9085495628";
 
-
-/* =================================
-   SAVE PACKAGE
-================================= */
-
-async function savePackage(){
-
-    const packageName =
-    document.getElementById("packageName")
-    .value.trim();
-
-    const views =
-    document.getElementById("views")
-    .value.trim();
-
-    const likes =
-    document.getElementById("likes")
-    .value.trim();
-
-    const shares =
-    document.getElementById("shares")
-    .value.trim();
-
-    const price =
-    document.getElementById("price")
-    .value.trim();
-
-    const offer =
-    document.getElementById("offer")
-    .value.trim();
+let selectedPackage = null;
 
 
-    if(!packageName){
-        alert("Package Name is required.");
-        return;
-    }
+/* -----------------------------
+   Fetch With Timeout
+----------------------------- */
 
-    if(!views){
-        alert("Views is required.");
-        return;
-    }
+async function fetchWithTimeout(url, timeout = 9000){
 
-    if(!likes){
-        alert("Likes is required.");
-        return;
-    }
+  const controller =
+    new AbortController();
 
-    if(!shares){
-        alert("Shares is required.");
-        return;
-    }
+  const timer =
+    setTimeout(() => {
+      controller.abort();
+    }, timeout);
 
-    if(!price){
-        alert("Price is required.");
-        return;
-    }
+  try{
 
-    if(!offer){
-        alert("Offer is required.");
-        return;
-    }
+    const response =
+      await fetch(url,{
+        method:"GET",
+        cache:"no-store",
+        signal:controller.signal
+      });
 
+    clearTimeout(timer);
 
-    const packageData = {
+    if(!response.ok){
 
-        packageName:packageName,
-
-        views:views,
-
-        likes:likes,
-
-        shares:shares,
-
-        price:price,
-
-        offer:offer,
-
-        createdAt:Date.now()
-
-    };
-
-
-    try{
-
-        const response =
-        await fetch(
-
-            `${DATABASE_URL}/packages.json`,
-
-            {
-
-                method:"POST",
-
-                headers:{
-                    "Content-Type":
-                    "application/json"
-                },
-
-                body:
-                JSON.stringify(packageData)
-
-            }
-
-        );
-
-
-        if(!response.ok){
-            throw new Error("Save failed");
-        }
-
-
-        alert(
-            "Package Saved Successfully."
-        );
-
-
-        clearAddForm();
-
-        loadPackages();
+      throw new Error(
+        "HTTP " + response.status
+      );
 
     }
 
-    catch(error){
+    return await response.json();
 
-        console.error(error);
+  }catch(error){
 
-        alert(
-            "Package save failed. Check Firebase Rules."
-        );
+    clearTimeout(timer);
 
-    }
+    throw error;
 
+  }
 }
 
 
-/* =================================
-   CLEAR FORM
-================================= */
-
-function clearAddForm(){
-
-    document.getElementById(
-        "packageName"
-    ).value="";
-
-    document.getElementById(
-        "views"
-    ).value="";
-
-    document.getElementById(
-        "likes"
-    ).value="";
-
-    document.getElementById(
-        "shares"
-    ).value="";
-
-    document.getElementById(
-        "price"
-    ).value="";
-
-    document.getElementById(
-        "offer"
-    ).value="";
-
-}
-
-
-/* =================================
-   LOAD PACKAGES
-================================= */
+/* -----------------------------
+   Load Our Packages
+----------------------------- */
 
 async function loadPackages(){
 
-    const list =
-    document.getElementById(
-        "packageList"
-    );
+  const area =
+    document.getElementById("packageArea");
 
-    list.innerHTML =
-    "Loading...";
+  area.innerHTML = `
+    <div class="loading">
+      <div class="spinner"></div>
+      <div>Loading packages...</div>
+    </div>
+  `;
 
+  try{
 
-    try{
+    /*
+      Packages are loaded from:
 
-        const response =
-        await fetch(
+      /packages
+    */
 
-            `${DATABASE_URL}/packages.json`,
+    const url =
+      `${FIREBASE_URL}/packages.json?t=${Date.now()}`;
 
-            {
-                cache:"no-store"
-            }
+    const data =
+      await fetchWithTimeout(url,9000);
 
-        );
+    area.innerHTML = "";
 
+    if(!data){
 
-        if(!response.ok){
-            throw new Error("Load failed");
-        }
-
-
-        const data =
-        await response.json();
-
-
-        list.innerHTML="";
-
-
-        if(!data){
-
-            list.innerHTML =
-            "<p>No packages.</p>";
-
-            return;
-
-        }
-
-
-        const packages =
-        Object.entries(data).reverse();
-
-
-        packages.forEach(
-        function([id,item]){
-
-            const div =
-            document.createElement("div");
-
-            div.className =
-            "package";
-
-
-            const name =
-            escapeHTML(
-                item.packageName || ""
-            );
-
-            const views =
-            escapeHTML(
-                item.views || ""
-            );
-
-            const likes =
-            escapeHTML(
-                item.likes || ""
-            );
-
-            const shares =
-            escapeHTML(
-                item.shares || ""
-            );
-
-            const price =
-            escapeHTML(
-                item.price || ""
-            );
-
-            const offer =
-            escapeHTML(
-                item.offer || ""
-            );
-
-
-            div.innerHTML = `
-
-                <div class="package-top">
-
-                    <div class="package-name">
-                        ${name}
-                    </div>
-
-                    <div class="package-actions">
-
-                        <button
-                            class="edit-btn"
-                            onclick="showEdit('${id}')">
-
-                            Edit
-
-                        </button>
-
-                        <button
-                            class="delete-btn"
-                            onclick="deletePackage('${id}')">
-
-                            Delete
-
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <div
-                    class="package-details"
-                    id="details-${id}">
-
-                    Views:
-                    <b>${views}</b>
-
-                    <br>
-
-                    Likes:
-                    <b>${likes}</b>
-
-                    <br>
-
-                    Shares:
-                    <b>${shares}</b>
-
-                    <br>
-
-                    Price:
-                    <b>₹${price}</b>
-
-                    <br>
-
-                    <span class="offer-badge">
-
-                        ${offer}% Offer
-
-                    </span>
-
-                </div>
-
-
-                <!-- EDIT AREA -->
-
-                <div
-                    class="edit-area"
-                    id="edit-${id}"
-                    style="display:none;">
-
-
-                    <div class="edit-group">
-
-                        <label>
-                            Package Name
-                        </label>
-
-                        <input
-                            type="text"
-                            id="editName-${id}"
-                            value="${escapeAttribute(
-                                item.packageName || ""
-                            )}">
-
-                    </div>
-
-
-                    <div class="edit-group">
-
-                        <label>
-                            Views
-                        </label>
-
-                        <input
-                            type="text"
-                            id="editViews-${id}"
-                            value="${escapeAttribute(
-                                item.views || ""
-                            )}">
-
-                    </div>
-
-
-                    <div class="edit-group">
-
-                        <label>
-                            Likes
-                        </label>
-
-                        <input
-                            type="text"
-                            id="editLikes-${id}"
-                            value="${escapeAttribute(
-                                item.likes || ""
-                            )}">
-
-                    </div>
-
-
-                    <div class="edit-group">
-
-                        <label>
-                            Shares
-                        </label>
-
-                        <input
-                            type="text"
-                            id="editShares-${id}"
-                            value="${escapeAttribute(
-                                item.shares || ""
-                            )}">
-
-                    </div>
-
-
-                    <div class="edit-group">
-
-                        <label>
-                            Price (₹)
-                        </label>
-
-                        <input
-                            type="text"
-                            id="editPrice-${id}"
-                            value="${escapeAttribute(
-                                item.price || ""
-                            )}">
-
-                    </div>
-
-
-                    <div class="edit-group">
-
-                        <label>
-                            Offer (%)
-                        </label>
-
-                        <input
-                            type="text"
-                            id="editOffer-${id}"
-                            value="${escapeAttribute(
-                                item.offer || ""
-                            )}">
-
-                    </div>
-
-
-                    <div class="edit-buttons">
-
-                        <button
-                            class="update-btn"
-                            onclick="updatePackage('${id}')">
-
-                            Save Changes
-
-                        </button>
-
-
-                        <button
-                            class="cancel-btn"
-                            onclick="cancelEdit('${id}')">
-
-                            Cancel
-
-                        </button>
-
-                    </div>
-
-                </div>
-
-            `;
-
-
-            list.appendChild(div);
-
-        });
+      showEmpty(area);
+      return;
 
     }
 
-    catch(error){
+    const entries =
+      Object.entries(data);
 
-        console.error(error);
+    if(entries.length === 0){
 
-        list.innerHTML =
-        "<p>Failed to load packages.</p>";
+      showEmpty(area);
+      return;
 
     }
 
-}
+    const grid =
+      document.createElement("div");
 
+    grid.className = "packages";
 
-/* =================================
-   SHOW EDIT
-================================= */
+    entries.forEach(([id,pkg]) => {
 
-function showEdit(id){
+      if(!pkg) return;
 
-    const editBox =
-    document.getElementById(
-        "edit-" + id
-    );
+      const card =
+        createPackageCard(pkg);
 
-    const details =
-    document.getElementById(
-        "details-" + id
-    );
+      grid.appendChild(card);
 
+    });
 
-    if(editBox){
-        editBox.style.display="block";
+    if(grid.children.length === 0){
+
+      showEmpty(area);
+      return;
+
     }
 
-    if(details){
-        details.style.display="none";
-    }
+    area.appendChild(grid);
 
-}
+  }catch(error){
 
+    console.error(error);
 
-/* =================================
-   CANCEL EDIT
-================================= */
-
-function cancelEdit(id){
-
-    const editBox =
-    document.getElementById(
-        "edit-" + id
-    );
-
-    const details =
-    document.getElementById(
-        "details-" + id
-    );
-
-
-    if(editBox){
-        editBox.style.display="none";
-    }
-
-    if(details){
-        details.style.display="block";
-    }
-
-}
-
-
-/* =================================
-   UPDATE PACKAGE
-================================= */
-
-async function updatePackage(id){
-
-    const packageName =
-    document.getElementById(
-        "editName-" + id
-    ).value.trim();
-
-    const views =
-    document.getElementById(
-        "editViews-" + id
-    ).value.trim();
-
-    const likes =
-    document.getElementById(
-        "editLikes-" + id
-    ).value.trim();
-
-    const shares =
-    document.getElementById(
-        "editShares-" + id
-    ).value.trim();
-
-    const price =
-    document.getElementById(
-        "editPrice-" + id
-    ).value.trim();
-
-    const offer =
-    document.getElementById(
-        "editOffer-" + id
-    ).value.trim();
-
+    let message =
+      "Connection is taking too long. Please try again.";
 
     if(
-        !packageName ||
-        !views ||
-        !likes ||
-        !shares ||
-        !price ||
-        !offer
+      error.message &&
+      error.message.includes("401")
     ){
 
-        alert(
-            "Please fill all fields."
-        );
-
-        return;
+      message =
+        "Database permission denied.";
 
     }
-
-
-    const updateData = {
-
-        packageName:packageName,
-
-        views:views,
-
-        likes:likes,
-
-        shares:shares,
-
-        price:price,
-
-        offer:offer
-
-    };
-
-
-    try{
-
-        const response =
-        await fetch(
-
-            `${DATABASE_URL}/packages/${id}.json`,
-
-            {
-
-                method:"PATCH",
-
-                headers:{
-                    "Content-Type":
-                    "application/json"
-                },
-
-                body:
-                JSON.stringify(updateData)
-
-            }
-
-        );
-
-
-        if(!response.ok){
-            throw new Error(
-                "Update failed"
-            );
-        }
-
-
-        alert(
-            "Package Updated Successfully."
-        );
-
-
-        loadPackages();
-
-    }
-
-    catch(error){
-
-        console.error(error);
-
-        alert(
-            "Update failed. Check Firebase Rules."
-        );
-
-    }
-
-}
-
-
-/* =================================
-   DELETE PACKAGE
-================================= */
-
-async function deletePackage(id){
 
     if(
-        !confirm(
-            "Delete this package?"
-        )
-    ){
-        return;
-    }
-
-
-    try{
-
-        const response =
-        await fetch(
-
-            `${DATABASE_URL}/packages/${id}.json`,
-
-            {
-                method:"DELETE"
-            }
-
-        );
-
-
-        if(!response.ok){
-            throw new Error(
-                "Delete failed"
-            );
-        }
-
-
-        loadPackages();
-
-    }
-
-    catch(error){
-
-        console.error(error);
-
-        alert(
-            "Delete failed. Check Firebase Rules."
-        );
-
-    }
-
-}
-
-
-/* =================================
-   PACKAGE VIEW
-================================= */
-
-function showPackages(){
-
-    document
-    .getElementById("calculatorView")
-    .classList.remove("show");
-
-    document
-    .getElementById("mainView")
-    .classList.remove("hide");
-
-    window.scrollTo(0,0);
-
-}
-
-
-/* =================================
-   OPEN CALCULATOR
-================================= */
-
-function openCalculator(){
-
-    document
-    .getElementById("mainView")
-    .classList.add("hide");
-
-    document
-    .getElementById("calculatorView")
-    .classList.add("show");
-
-    window.scrollTo(0,0);
-
-}
-
-
-/* =================================
-   CLOSE CALCULATOR
-================================= */
-
-function closeCalculator(){
-
-    document
-    .getElementById("calculatorView")
-    .classList.remove("show");
-
-    document
-    .getElementById("mainView")
-    .classList.remove("hide");
-
-    window.scrollTo(0,0);
-
-}
-
-
-/* =================================
-   QUANTITY CONVERTER
-================================= */
-
-function convertQuantity(value){
-
-    value =
-    value
-    .toUpperCase()
-    .replace(/,/g,"")
-    .trim();
-
-
-    let numberPart=value;
-    let multiplier=1;
-
-
-    if(value.endsWith("K")){
-
-        numberPart =
-        value.substring(
-            0,
-            value.length-1
-        );
-
-        multiplier=1000;
-
-    }
-
-    else if(value.endsWith("M")){
-
-        numberPart =
-        value.substring(
-            0,
-            value.length-1
-        );
-
-        multiplier=1000000;
-
-    }
-
-
-    const number =
-    Number(numberPart);
-
-
-    if(isNaN(number)){
-        return null;
-    }
-
-
-    return number * multiplier;
-
-}
-
-
-/* =================================
-   CALCULATOR
-================================= */
-
-function calculateDiscount(){
-
-    const ratePerText =
-    document.getElementById(
-        "ratePer"
-    ).value.trim();
-
-
-    const normalRateText =
-    document.getElementById(
-        "normalRate"
-    ).value.trim();
-
-
-    const quantityText =
-    document.getElementById(
-        "calcQuantity"
-    ).value.trim();
-
-
-    const setPriceText =
-    document.getElementById(
-        "setPrice"
-    ).value.trim();
-
-
-    const result =
-    document.getElementById(
-        "calculatorResult"
-    );
-
-
-    const ratePer =
-    convertQuantity(
-        ratePerText
-    );
-
-
-    const normalRate =
-    Number(normalRateText);
-
-
-    const quantity =
-    convertQuantity(
-        quantityText
-    );
-
-
-    const setPrice =
-    Number(setPriceText);
-
-
-    if(
-        ratePer === null ||
-        ratePer <= 0 ||
-        isNaN(normalRate) ||
-        normalRate < 0 ||
-        quantity === null ||
-        quantity <= 0 ||
-        isNaN(setPrice) ||
-        setPrice < 0
+      error.message &&
+      error.message.includes("403")
     ){
 
-        result.innerHTML =
-        "Please enter valid values.";
-
-        return;
+      message =
+        "Database access is blocked.";
 
     }
 
-
-    const normalPrice =
-    (quantity / ratePer) *
-    normalRate;
-
-
-    const savedAmount =
-    normalPrice - setPrice;
-
-
-    let discountPercentage=0;
-
-
-    if(normalPrice > 0){
-
-        discountPercentage =
-        (savedAmount /
-        normalPrice) * 100;
-
-    }
-
-
-    if(discountPercentage < 0){
-        discountPercentage=0;
-    }
-
-
-    const saving =
-    Math.max(
-        savedAmount,
-        0
-    );
-
-
-    result.innerHTML = `
-
-        <b>Rate Per:</b>
-        ${formatNumber(ratePer)}
-
+    area.innerHTML = `
+      <div class="empty">
+        ${message}
         <br>
 
-        <b>Customer Quantity:</b>
-        ${formatNumber(quantity)}
+        <button
+          class="retry-btn"
+          onclick="loadPackages()"
+        >
+          Retry
+        </button>
 
-        <br>
-
-        <b>Normal Price:</b>
-        ₹${normalPrice.toFixed(2)}
-
-        <br>
-
-        <b>Set Price:</b>
-        ₹${setPrice.toFixed(2)}
-
-        <br>
-
-        <div class="saved-big">
-
-            Saves:
-            ₹${saving.toFixed(2)}
-
-        </div>
-
-        <div class="discount-big">
-
-            Offer:
-            ${discountPercentage.toFixed(2)}%
-
-        </div>
-
+      </div>
     `;
 
-}
-
-
-/* =================================
-   FORMAT NUMBER
-================================= */
-
-function formatNumber(number){
-
-    return Number(number)
-    .toLocaleString("en-IN");
+  }
 
 }
 
 
-/* =================================
-   ESCAPE HTML
-================================= */
+/* -----------------------------
+   Empty
+----------------------------- */
+
+function showEmpty(area){
+
+  area.innerHTML = `
+    <div class="empty">
+      No packages available right now.
+    </div>
+  `;
+
+}
+
+
+/* -----------------------------
+   Create Package Card
+----------------------------- */
+
+function createPackageCard(pkg){
+
+  const card =
+    document.createElement("div");
+
+  card.className =
+    "package-card";
+
+  const packageName =
+    pkg.packageName || "Package";
+
+  const views =
+    pkg.views || "-";
+
+  const likes =
+    pkg.likes || "-";
+
+  const shares =
+    pkg.shares || "-";
+
+  const price =
+    pkg.price !== undefined
+      ? pkg.price
+      : "";
+
+  const offer =
+    pkg.offer !== undefined &&
+    pkg.offer !== ""
+      ? pkg.offer
+      : "";
+
+
+  let offerHTML = "";
+
+  if(offer !== ""){
+
+    offerHTML = `
+      <div class="package-offer">
+        ${escapeHTML(String(offer))}% OFF
+      </div>
+    `;
+
+  }
+
+
+  card.innerHTML = `
+
+    <div>
+
+      <div class="package-name">
+        ${escapeHTML(String(packageName))}
+      </div>
+
+      <div class="package-details">
+
+        <div>
+          <span class="package-label">
+            Views
+          </span>
+
+          <span class="package-value">
+            ${escapeHTML(String(views))}
+          </span>
+        </div>
+
+
+        <div>
+          <span class="package-label">
+            Likes
+          </span>
+
+          <span class="package-value">
+            ${escapeHTML(String(likes))}
+          </span>
+        </div>
+
+
+        <div>
+          <span class="package-label">
+            Shares
+          </span>
+
+          <span class="package-value">
+            ${escapeHTML(String(shares))}
+          </span>
+        </div>
+
+      </div>
+
+
+      <div class="package-price">
+        ₹${escapeHTML(String(price))}
+      </div>
+
+      ${offerHTML}
+
+    </div>
+
+
+    <button class="buy-btn">
+      Buy Now
+    </button>
+
+  `;
+
+
+  card
+    .querySelector(".buy-btn")
+    .addEventListener(
+      "click",
+      () => openOrder(pkg)
+    );
+
+
+  return card;
+
+}
+
+
+/* -----------------------------
+   Escape HTML
+----------------------------- */
 
 function escapeHTML(value){
 
-    return String(value)
-
+  return String(value)
     .replace(/&/g,"&amp;")
     .replace(/</g,"&lt;")
     .replace(/>/g,"&gt;")
@@ -1672,25 +848,373 @@ function escapeHTML(value){
 }
 
 
-/* =================================
-   ESCAPE ATTRIBUTE
-================================= */
+/* -----------------------------
+   Open Order
+----------------------------- */
 
-function escapeAttribute(value){
+function openOrder(pkg){
 
-    return String(value)
+  selectedPackage =
+    pkg;
 
-    .replace(/&/g,"&amp;")
-    .replace(/"/g,"&quot;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;");
+  document.getElementById(
+    "homePage"
+  ).style.display = "none";
+
+  document.getElementById(
+    "orderPage"
+  ).style.display = "block";
+
+
+  document.getElementById(
+    "orderPackage"
+  ).value =
+    pkg.packageName || "";
+
+
+  document.getElementById(
+    "orderViews"
+  ).value =
+    pkg.views || "";
+
+
+  document.getElementById(
+    "orderLikes"
+  ).value =
+    pkg.likes || "";
+
+
+  document.getElementById(
+    "orderShares"
+  ).value =
+    pkg.shares || "";
+
+
+  document.getElementById(
+    "orderPrice"
+  ).value =
+    "₹" + (pkg.price || "");
+
+
+  document.getElementById(
+    "instagramLink"
+  ).value = "";
+
+
+  resetOrderButton();
+
+
+  window.scrollTo({
+    top:0,
+    behavior:"instant"
+  });
 
 }
 
 
-/* =================================
-   START
-================================= */
+/* -----------------------------
+   Back Home
+----------------------------- */
+
+function backHome(){
+
+  document.getElementById(
+    "orderPage"
+  ).style.display = "none";
+
+  document.getElementById(
+    "homePage"
+  ).style.display = "block";
+
+
+  document.getElementById(
+    "instagramLink"
+  ).value = "";
+
+
+  resetOrderButton();
+
+
+  window.scrollTo({
+    top:0,
+    behavior:"instant"
+  });
+
+}
+
+
+/* -----------------------------
+   Instagram Post/Reel URL
+----------------------------- */
+
+function isValidPostOrReelURL(value){
+
+  try{
+
+    const url =
+      new URL(value.trim());
+
+    const host =
+      url.hostname
+        .toLowerCase()
+        .replace(/^www\./,"");
+
+
+    if(
+      host !== "instagram.com" &&
+      host !== "instagr.am"
+    ){
+
+      return false;
+
+    }
+
+
+    const parts =
+      url.pathname
+        .split("/")
+        .filter(Boolean);
+
+
+    if(parts.length !== 2){
+
+      return false;
+
+    }
+
+
+    const type =
+      parts[0].toLowerCase();
+
+
+    if(
+      type !== "p" &&
+      type !== "reel" &&
+      type !== "reels"
+    ){
+
+      return false;
+
+    }
+
+
+    return /^[A-Za-z0-9_-]+$/.test(
+      parts[1]
+    );
+
+  }catch(e){
+
+    return false;
+
+  }
+
+}
+
+
+/* -----------------------------
+   Check Instagram Link
+----------------------------- */
+
+function checkInstagramLink(){
+
+  const input =
+    document.getElementById(
+      "instagramLink"
+    );
+
+  const button =
+    document.getElementById(
+      "orderBtn"
+    );
+
+  const value =
+    input.value.trim();
+
+
+  if(!selectedPackage){
+
+    resetOrderButton();
+    return;
+
+  }
+
+
+  const valid =
+    isValidPostOrReelURL(value);
+
+
+  if(valid){
+
+    button.disabled = false;
+
+    button.classList.add(
+      "active"
+    );
+
+  }else{
+
+    resetOrderButton();
+
+  }
+
+}
+
+
+/* -----------------------------
+   Reset Order Button
+----------------------------- */
+
+function resetOrderButton(){
+
+  const button =
+    document.getElementById(
+      "orderBtn"
+    );
+
+  button.disabled = true;
+
+  button.classList.remove(
+    "active"
+  );
+
+}
+
+
+/* -----------------------------
+   Place Order
+----------------------------- */
+
+function placeOrder(){
+
+  if(!selectedPackage){
+
+    return;
+
+  }
+
+
+  const link =
+    document.getElementById(
+      "instagramLink"
+    ).value.trim();
+
+
+  if(!isValidPostOrReelURL(link)){
+
+    alert(
+      "Please enter a valid Instagram Post/Reel link."
+    );
+
+    return;
+
+  }
+
+
+  const message =
+
+`Hello 24online.com 👋
+
+I want to place an order.
+
+Package: ${selectedPackage.packageName || ""}
+
+Views: ${selectedPackage.views || ""}
+Likes: ${selectedPackage.likes || ""}
+Shares: ${selectedPackage.shares || ""}
+
+Price: ₹${selectedPackage.price || ""}
+
+Instagram Post/Reel Link: ${link}
+
+Please confirm my order.`;
+
+
+  const whatsappURL =
+    "https://wa.me/" +
+    WHATSAPP_NUMBER +
+    "?text=" +
+    encodeURIComponent(message);
+
+
+  window.location.href =
+    whatsappURL;
+
+}
+
+
+/* -----------------------------
+   Disable Copy / Right Click
+----------------------------- */
+
+document.addEventListener(
+  "contextmenu",
+  function(e){
+
+    if(
+      e.target.tagName !== "INPUT" &&
+      e.target.tagName !== "TEXTAREA" &&
+      e.target.tagName !== "SELECT"
+    ){
+
+      e.preventDefault();
+
+    }
+
+  }
+);
+
+
+document.addEventListener(
+  "keydown",
+  function(e){
+
+    const tag =
+      e.target.tagName;
+
+    const isInput =
+      tag === "INPUT" ||
+      tag === "TEXTAREA" ||
+      tag === "SELECT";
+
+
+    if(isInput) return;
+
+
+    if(
+      (e.ctrlKey || e.metaKey) &&
+      ["c","x","a"].includes(
+        e.key.toLowerCase()
+      )
+    ){
+
+      e.preventDefault();
+
+    }
+
+  }
+);
+
+
+document.addEventListener(
+  "dragstart",
+  function(e){
+
+    if(
+      e.target.tagName !== "INPUT" &&
+      e.target.tagName !== "TEXTAREA"
+    ){
+
+      e.preventDefault();
+
+    }
+
+  }
+);
+
+
+/* -----------------------------
+   Initial Load
+----------------------------- */
 
 loadPackages();
 
